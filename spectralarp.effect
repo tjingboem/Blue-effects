@@ -1,0 +1,497 @@
+<effect>
+  <name>spectralarp</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;spectralarpON&gt; == 1) then
+    itable3	ftgen 0, 0, 16384, -19, 1, 1, 260, 1
+    itabledraw	ftgen 0, 0, 16384, -7, &lt;table_shape&gt;
+
+    kjit    jitter	&lt;randamp&gt;, &lt;randmin&gt;, &lt;randmax&gt; 
+    kmod1 oscili &lt;moddepth&gt;, &lt;modfreq&gt;*kjit, &lt;tablenum&gt;, i(&lt;phase1&gt;)
+    kmod2 oscili &lt;moddepth&gt;, &lt;modfreq&gt;*kjit, &lt;tablenum&gt;, i(&lt;phase2&gt;)
+
+    ftps1  pvsanal   ain1, &lt;size&gt;, &lt;overlap&gt;, &lt;size&gt;, 1                         ; analyse it
+    ftps2  pvsanal   ain2, &lt;size&gt;, &lt;overlap&gt;, &lt;size&gt;, 1
+
+    ftar1  pvsarp   ftps1, (&lt;bin1&gt;+0.01)+kmod1, 1-&lt;depth&gt;, &lt;vol&gt;                ; arpeggiate it (range 220.5 - 2425.5)
+    ftar2  pvsarp   ftps2, (&lt;bin2&gt;+0.01)+kmod2, 1-&lt;depth&gt;, &lt;vol&gt; 
+
+    aout1  pvsynth  ftar1                                                       ; synthesise it
+    aout2  pvsynth  ftar2
+ 
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>spectral arpagiator using Victor Lazzarini&apos;s pvsarp.</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>105</y>
+          <groupName>modulateion</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>236</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>250</x>
+            <y>85</y>
+            <label>speed</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLineObject'>
+            <objectName>table</objectName>
+            <x>10</x>
+            <y>90</y>
+            <canvasWidth>220</canvasWidth>
+            <canvasHeight>120</canvasHeight>
+            <xMax>16384.0</xMax>
+            <relativeXValues>true</relativeXValues>
+            <separatorType>COMMA</separatorType>
+            <leadingZero>false</leadingZero>
+            <locked>false</locked>
+            <lines>
+              <line name='shape' version='2' max='1.0' min='0.0' bdresolution='-1' color='-14623488' rightBound='true' endPointsLinked='false'>
+                <linePoint x='0.0' y='0.5'/>
+                <linePoint x='0.0927835' y='0.03191489'/>
+                <linePoint x='0.26804122' y='0.86702126'/>
+                <linePoint x='0.5412371' y='0.2606383'/>
+                <linePoint x='0.7474227' y='0.9148936'/>
+                <linePoint x='0.8402062' y='0.2712766'/>
+                <linePoint x='1.0' y='0.5'/>
+              </line>
+            </lines>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>randmax</objectName>
+            <x>250</x>
+            <y>145</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>20.0</maximum>
+            <value>19.1103</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+            <label>max.</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>tablenum</objectName>
+            <x>235</x>
+            <y>210</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>1</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='1972299065'>
+                <name>bell</name>
+                <value>itable3</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='1972299066'>
+                <name>draw</name>
+                <value>itabledraw</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>randamp</objectName>
+            <x>245</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>10.0</maximum>
+            <value>0.85851</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+            <label>random</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>moddepth</objectName>
+            <x>65</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.02456</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>depth</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>150</x>
+            <y>0</y>
+            <label>phase </label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>modfreq</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>400.0</maximum>
+            <value>0.2</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>freq</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>phase1</objectName>
+            <x>125</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.0</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>left</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>phase2</objectName>
+            <x>175</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.27678</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>right</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>randmin</objectName>
+            <x>250</x>
+            <y>95</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>20.0</maximum>
+            <value>5.8179703</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+            <label>min.</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>Group</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>214</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>bin1</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.0152</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>arp left</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>185</x>
+            <y>55</y>
+            <label>size</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+            <objectName>depth</objectName>
+            <x>265</x>
+            <y>25</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>0.0</value>
+            <sliderHeight>50</sliderHeight>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>size</objectName>
+            <x>130</x>
+            <y>50</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>3</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='196006803'>
+                <name>256</name>
+                <value>256</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='196006804'>
+                <name>512</name>
+                <value>512</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='196006805'>
+                <name>1024</name>
+                <value>1024</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='196006806'>
+                <name>2048</name>
+                <value>2048</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>240</x>
+            <y>10</y>
+            <label>wet</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>185</x>
+            <y>30</y>
+            <label>overlap</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>bin2</objectName>
+            <x>60</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.0152</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>arp right</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>270</x>
+            <y>10</y>
+            <label>dry</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+            <objectName>vol</objectName>
+            <x>235</x>
+            <y>25</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>1.0</value>
+            <sliderHeight>50</sliderHeight>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>overlap</objectName>
+            <x>130</x>
+            <y>25</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>1</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='196006800'>
+                <name>256</name>
+                <value>256</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='196006801'>
+                <name>512</name>
+                <value>512</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='196006802'>
+                <name>1024</name>
+                <value>1024</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>spectralarpON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-134333848' name='randamp' label='' min='0.0' max='10.0' bdresolution='-1' automationEnabled='false' value='0.85851'>
+      <line name='' version='2' max='10.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.85851'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333846' name='phase2' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.27678'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.27678'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333844' name='moddepth' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.02456'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.02456'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333842' name='modfreq' label='' min='0.0' max='400.0' bdresolution='-1' automationEnabled='false' value='0.2'>
+      <line name='' version='2' max='400.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.2'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333840' name='randmin' label='' min='0.0' max='20.0' bdresolution='-1' automationEnabled='false' value='5.8179703'>
+      <line name='' version='2' max='20.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='5.8179703'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333838' name='phase1' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333836' name='randmax' label='' min='0.0' max='20.0' bdresolution='-1' automationEnabled='false' value='19.1103'>
+      <line name='' version='2' max='20.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='19.1103'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333834' name='bin1' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.0152'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0152'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333830' name='bin2' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.0152'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0152'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-591990032' name='depth' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-591990030' name='vol' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-591989332' name='spectralarpON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
