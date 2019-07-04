@@ -1,0 +1,168 @@
+<effect>
+  <name>Moog VCF</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;MoogFilterON&gt; == 1) then
+    kres	=	&lt;res&gt;
+    kcofreq	=	&lt;cofA&gt;+&lt;cofB&gt;
+    iscale	=	0dbfs
+
+    aout1	moogvcf	ain1, kcofreq, kres, iscale
+    aout2	moogvcf	ain2, kcofreq, kres, iscale
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments/>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>85</x>
+          <y>10</y>
+          <groupName>cutoff frequency</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x1a4d4dff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>15</x>
+            <y>55</y>
+            <label>coarse</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>15</x>
+            <y>25</y>
+            <label>fine</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>cofB</objectName>
+            <x>10</x>
+            <y>40</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>20000.0</maximum>
+            <bdresolution>1E+3</bdresolution>
+            <value>3000.0</value>
+            <sliderWidth>200</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>cofA</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1000.0</maximum>
+            <bdresolution>1</bdresolution>
+            <value>650.0</value>
+            <sliderWidth>200</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>90</y>
+          <label>Resonance</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>res</objectName>
+          <x>15</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.2</maximum>
+          <value>0.0</value>
+          <knobWidth>60</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>label</label>
+          <labelEnabled>false</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>MoogFilterON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1342660283' name='res' label='' min='0.0' max='1.2' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.2' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1342660277' name='cofA' label='' min='0.0' max='1000.0' bdresolution='1' automationEnabled='false' value='650.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='650.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1342660275' name='cofB' label='' min='0.0' max='20000.0' bdresolution='1E+3' automationEnabled='false' value='3000.0'>
+      <line name='' version='2' max='20000.0' min='0.0' bdresolution='1E+3' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='3000.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-865599478' name='MoogFilterON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
