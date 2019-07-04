@@ -1,0 +1,475 @@
+<effect>
+  <name>crossfilt</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;CrossfiltON&gt; == 1) then
+    ireverse = i(&lt;rev&gt;)
+    ichn filenchnls &quot;&lt;file&gt;&quot;
+
+    if (ichn == 1) then
+	ar1         diskin2 &quot;&lt;file&gt;&quot;, &lt;speed&gt;, 0, i(&lt;loop&gt;)
+	ar2 = 	ar1
+    else
+	ar1, ar2    diskin2 &quot;&lt;file&gt;&quot;, &lt;speed&gt;, 0, i(&lt;loop&gt;)
+    endif
+
+    ftps1  pvsanal   ain1*&lt;g2&gt;, &lt;size&gt;, &lt;overlap&gt;, &lt;size&gt;, 1                    ; analyse it
+    ftps2  pvsanal   ain2*&lt;g2&gt;, &lt;size&gt;, &lt;overlap&gt;, &lt;size&gt;, 1
+    ftps3  pvsanal   ar1*&lt;g1&gt;, &lt;size&gt;, &lt;overlap&gt;, &lt;size&gt;, 1                     ; analyse it
+    ftps4  pvsanal   ar2*&lt;g1&gt;, &lt;size&gt;, &lt;overlap&gt;, &lt;size&gt;, 1
+
+    if (ireverse == 1) kgoto setup1
+	kgoto setup2
+
+
+    setup1:
+    fsig1 	pvsfilter	 ftps1, ftps3, &lt;depth&gt;, i(&lt;vol&gt;)
+    fsig2 	pvsfilter	 ftps2, ftps4, &lt;depth&gt;, i(&lt;vol&gt;)
+    goto end
+
+    setup2:
+    fsig1 	pvsfilter	 ftps3, ftps1, &lt;depth&gt;, i(&lt;vol&gt;)
+    fsig2 	pvsfilter	 ftps4, ftps2, &lt;depth&gt;, i(&lt;vol&gt;)
+    goto end
+
+    end:
+    awetll  pvsynth  fsig1                                                      ; synthesise it
+    awetrr  pvsynth  fsig2
+
+    if (&lt;EQ_on&gt; == 1) then                                                      ;turn Equalizer on/off
+        awetlA eqfil awetll, 150, 80, &lt;gain_bass&gt;                               ;3 band eq
+        awetrA eqfil awetrr, 150, 80, &lt;gain_bass&gt;
+        awetlB eqfil awetll, 1200, 500, &lt;gain_mid&gt;
+        awetrB eqfil awetrr, 1200, 500, &lt;gain_mid&gt;
+        awetlC eqfil awetll, &lt;freq_high&gt;, 3000, &lt;gain_high&gt;
+        awetrC eqfil awetrr, &lt;freq_high&gt;, 3000, &lt;gain_high&gt;
+    else
+    awetl   =   awetll  
+    awetr   =   awetrr
+    endif
+
+    aout1   =   awetlA + awetlB + awetlC + awetl
+    aout2   =   awetrB + awetrB + awetrC + awetr
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>spectral &quot;cross filtering&quot; using Victor Lazzarini&apos;s pvsfilter.
+
+- added EQ to compensate for high frequency energy loss</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>select stereo file</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>speed</objectName>
+          <x>390</x>
+          <y>55</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>-3.0</minimum>
+          <maximum>3.0</maximum>
+          <value>-3.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>speed</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>500</x>
+          <y>10</y>
+          <groupName>timbre</groupName>
+          <backgroundColor>0xff000000</backgroundColor>
+          <borderColor>0x1a1a1aff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>119</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>gain_mid</objectName>
+            <x>10</x>
+            <y>60</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>12.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>0.6</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>160</x>
+            <y>85</y>
+            <label>bass</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>freq_high</objectName>
+            <x>10</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>4000.0</minimum>
+            <maximum>10000.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>4000.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>gain_bass</objectName>
+            <x>10</x>
+            <y>80</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>12.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>1.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+            <objectName>EQ_on</objectName>
+            <x>10</x>
+            <y>5</y>
+            <automationAllowed>false</automationAllowed>
+            <label>equalizer</label>
+            <selected>false</selected>
+            <randomizable>true</randomizable>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>160</x>
+            <y>65</y>
+            <label>mid</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>gain_high</objectName>
+            <x>10</x>
+            <y>40</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>12.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>1.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>160</x>
+            <y>40</y>
+            <label>high</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>45</y>
+          <groupName>Group</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+            <objectName>rev</objectName>
+            <x>6</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <label>swap sources</label>
+            <selected>true</selected>
+            <randomizable>true</randomizable>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>65</x>
+            <y>59</y>
+            <label>size</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>overlap</objectName>
+            <x>10</x>
+            <y>30</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>2</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-143771174'>
+                <name>256</name>
+                <value>256</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771173'>
+                <name>512</name>
+                <value>512</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771172'>
+                <name>1024</name>
+                <value>1024</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771171'>
+                <name>2048</name>
+                <value>2048</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>g2</objectName>
+            <x>294</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>10.0</maximum>
+            <value>4.8</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>looper gain</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>g1</objectName>
+            <x>234</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>3.0</maximum>
+            <value>1.0</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>input gain</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>size</objectName>
+            <x>10</x>
+            <y>55</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>4</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-143771179'>
+                <name>256</name>
+                <value>256</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771178'>
+                <name>512</name>
+                <value>512</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771177'>
+                <name>1024</name>
+                <value>1024</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771176'>
+                <name>2048</name>
+                <value>2048</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-143771175'>
+                <name>4096</name>
+                <value>4096</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>depth</objectName>
+            <x>120</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>1.0</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>depth</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>65</x>
+            <y>35</y>
+            <label>overlap</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>vol</objectName>
+            <x>179</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>4.0</maximum>
+            <value>3.4772000000000003</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>volume</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBFileSelector'>
+          <objectName>file</objectName>
+          <x>10</x>
+          <y>10</y>
+          <fileName></fileName>
+          <textFieldWidth>450</textFieldWidth>
+          <stringChannelEnabled>false</stringChannelEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>CrossfiltON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>loop</objectName>
+          <x>445</x>
+          <y>55</y>
+          <automationAllowed>true</automationAllowed>
+          <label>loop</label>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-143771169' name='rev' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771167' name='vol' label='' min='0.0' max='4.0' bdresolution='-1' automationEnabled='false' value='3.4772000000000003'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='3.4772000000000003'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771165' name='depth' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771163' name='g1' label='' min='0.0' max='3.0' bdresolution='-1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='3.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771161' name='g2' label='' min='0.0' max='10.0' bdresolution='-1' automationEnabled='false' value='4.8'>
+      <line name='' version='2' max='10.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='4.8'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771159' name='freq_high' label='' min='4000.0' max='10000.0' bdresolution='0.1' automationEnabled='false' value='4000.0'>
+      <line name='' version='2' max='10000.0' min='4000.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='4000.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771157' name='gain_bass' label='' min='0.0' max='12.0' bdresolution='0.1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='12.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771155' name='gain_mid' label='' min='0.0' max='12.0' bdresolution='0.1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='12.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771153' name='gain_high' label='' min='0.0' max='12.0' bdresolution='0.1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='12.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771151' name='CrossfiltON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771149' name='speed' label='' min='-3.0' max='3.0' bdresolution='-1' automationEnabled='false' value='-3.0'>
+      <line name='' version='2' max='3.0' min='-3.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='-3.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771147' name='loop' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
