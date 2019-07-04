@@ -1,0 +1,171 @@
+<effect>
+  <name>AdFM - Delay-based</name>
+  <enabled>false</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;AdFMdelayON&gt; == 1) then
+    itab	chnget	&quot;AdFM.sine_table&quot;
+
+    if (itab == 0) then
+	itab	ftgen 	0, 0, 65537, 10, 1 ; sine wave
+	chnset 	itab, &quot;AdFM.sine_table&quot;
+    endif
+
+    aout1 	DFM	ain1, &lt;fc_fm_ratio&gt;, &lt;index&gt;, itab
+    aout2 	DFM	ain2, &lt;fc_fm_ratio&gt;, &lt;index&gt;, itab
+    aout1 = (ain1 * &lt;wetdry&gt;) + (aout1 * (1 - &lt;wetdry&gt;))
+    aout2 = (ain2 * &lt;wetdry&gt;) + (aout2 * (1 - &lt;wetdry&gt;))
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>blue port of the delay-based version of Victor Lazzarini&apos;s Adaptive FM Synthesis(AdFM) 
+
+For more information, please consult the article &quot;Adaptive FM Synthesis&quot; by Victor Lazzarini, Joseph Timoney, and Thomas Lysaght, available at:
+
+http://dafx.labri.fr/dafx07_proceedings.html</comments>
+  <opcodeList>
+    <udo>
+      <opcodeName>DFM</opcodeName>
+      <outTypes>a</outTypes>
+      <inTypes>akki</inTypes>
+      <codeBody>setksmps 1
+as,krt,knx,ifn xin
+
+ioff = 2/sr /* 2-sample offset*/
+/* pitch tracking */
+kcps,kamp ptrack as,512
+/* modulator */
+adt oscili knx/($M_PI*kcps),kcps/krt,ifn
+adp delayr 1
+/* delay line */
+adel deltap3 adt + ioff
+delayw as
+
+xout adel</codeBody>
+      <comments></comments>
+    </udo>
+  </opcodeList>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>fc_fm_ratio</objectName>
+          <x>16</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>1.0</minimum>
+          <maximum>8.0</maximum>
+          <value>2.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>fc:fm</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>AdFMdelayON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>index</objectName>
+          <x>65</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>12.0</maximum>
+          <value>12.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>index</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>wetdry</objectName>
+          <x>115</x>
+          <y>25</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.0</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>120</x>
+          <y>10</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1174189484' name='index' label='' min='0.0' max='12.0' bdresolution='-1' automationEnabled='false' value='12.0'>
+      <line name='' version='2' max='12.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='12.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1174189482' name='fc_fm_ratio' label='' min='1.0' max='8.0' bdresolution='-1' automationEnabled='false' value='2.0'>
+      <line name='' version='2' max='8.0' min='1.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-654603693' name='AdFMdelayON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-2001140960' name='wetdry' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
