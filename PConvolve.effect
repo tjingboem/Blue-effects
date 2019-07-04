@@ -1,0 +1,230 @@
+<effect>
+  <name>PConvolve</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;PConvolveON&gt; == 1) then
+kwet = &lt;wetDry&gt;
+kdry = 1 - kwet
+
+; size of each convolution partion -- for best performance, this parameter needs to be tweaked
+ipartitionsize = &lt;paritionSize&gt;
+
+; calculate latency of pconvolve opcode
+idel    = (ksmps &lt; ipartitionsize ? ipartitionsize + ksmps : ipartitionsize)/sr
+
+prints &quot;Convolving with a latency of %f seconds%n&quot;, idel
+
+awetl, awetr pconvolve    kwet*(ain1+ain2), &quot;&lt;impulseResponse&gt;&quot;, ipartitionsize
+
+; Delay dry signal, to align it with the convoled sig
+adryl        delay  kdry * ain1, idel
+adryr        delay  kdry * ain2, idel
+
+aout1 = adryl+awetl
+aout2 = adryr+awetr
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>Convolution Effect using pconvolve opcode by Matt Ingalls
+
+The code for this effect is based on code by Matt Ingalls found in the Csound Manual; please see the manual for more information regarding pconvolve.</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>Impulse Response</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBFileSelector'>
+            <objectName>impulseResponse</objectName>
+            <x>10</x>
+            <y>10</y>
+            <fileName></fileName>
+            <textFieldWidth>500</textFieldWidth>
+            <stringChannelEnabled>false</stringChannelEnabled>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>18</x>
+          <y>73</y>
+          <label>Partition Size</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>PConvolveON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>paritionSize</objectName>
+          <x>105</x>
+          <y>70</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>9</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='-880529206'>
+              <name>1</name>
+              <value>1</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529205'>
+              <name>2</name>
+              <value>2</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529204'>
+              <name>4</name>
+              <value>4</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529203'>
+              <name>8</name>
+              <value>8</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529202'>
+              <name>16</name>
+              <value>16</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529201'>
+              <name>32</name>
+              <value>32</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529200'>
+              <name>64</name>
+              <value>64</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529199'>
+              <name>128</name>
+              <value>128</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529198'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529197'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529196'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529195'>
+              <name>2048</name>
+              <value>2048</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529194'>
+              <name>4096</name>
+              <value>4096</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529193'>
+              <name>8192</name>
+              <value>8192</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529192'>
+              <name>16384</name>
+              <value>16384</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529191'>
+              <name>32768</name>
+              <value>32768</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-880529190'>
+              <name>65536</name>
+              <value>65536</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>226</x>
+          <y>85</y>
+          <label>Dry</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>470</x>
+          <y>85</y>
+          <label>Wet</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>wetDry</objectName>
+          <x>220</x>
+          <y>65</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.5</value>
+          <sliderWidth>280</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-850961276' name='PConvolveON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='202974253' name='wetDry' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.5'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
