@@ -1,0 +1,270 @@
+<effect>
+  <name>Resonator</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;ResonatorON&gt; == 1) then
+    igain	=	i(&lt;gain&gt;)
+    kmodfrq	=	&lt;freqA&gt; + &lt;freqB&gt;
+    kdry	=	&lt;dry&gt;
+    kfrqlow	=	&lt;frqlow&gt;
+    kfrqhgh	=	&lt;frqhgh&gt;
+    kfrqamp	=	(kfrqhgh - kfrqlow)/2
+
+    itb	ftgentmp	0, 0, 1024, 7, &lt;wav_waveform&gt;
+
+    kmod	oscili	kfrqamp, kmodfrq, itb
+;kmod	=	kmod + kfrqlow + kfrqamp
+
+    aoutA	streson	ain1, kmod, igain
+    aoutB	streson	ain2, kmod, igain
+
+    aout1	=	(ain1 * kdry) + (aoutA * (1 - kdry))
+    aout2	=	(ain2 * kdry) + (aoutB * (1 - kdry))
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif
+</code>
+  <comments>Uses the streson opcode to resonate a signal.  The fundamental frequency is oscilated via the &quot;Freq. Change Waveform&quot;, between the values of &quot;Frq. Low&quot; and &quot;Frq. High&quot; at a rate of  &quot;Frequency of Fundamental Freq. Change&quot;</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>ResonatorON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>frqlow</objectName>
+          <x>20</x>
+          <y>80</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>5000.0</maximum>
+          <value>116.345</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>low</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>freqB</objectName>
+          <x>10</x>
+          <y>41</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>6.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>1.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>frqhgh</objectName>
+          <x>75</x>
+          <y>80</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>5000.0</maximum>
+          <value>2822.3500400000003</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>high</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>35</x>
+          <y>70</y>
+          <label>boundaries</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>freqA</objectName>
+          <x>10</x>
+          <y>12</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.2</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>dry</objectName>
+          <x>220</x>
+          <y>80</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.54</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>mix</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>65</x>
+          <y>35</y>
+          <label>frequency coarse</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>75</x>
+          <y>9</y>
+          <label>frequency fine</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>gain</objectName>
+          <x>165</x>
+          <y>80</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.8</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>gain</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>165</y>
+          <groupName>Freq. Change Waveform</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLineObject'>
+            <objectName>wav</objectName>
+            <x>5</x>
+            <y>10</y>
+            <canvasWidth>240</canvasWidth>
+            <canvasHeight>100</canvasHeight>
+            <xMax>1024.0</xMax>
+            <relativeXValues>true</relativeXValues>
+            <separatorType>COMMA</separatorType>
+            <leadingZero>false</leadingZero>
+            <locked>false</locked>
+            <lines>
+              <line name='waveform' version='2' max='1.0' min='-1.0' bdresolution='-1' color='-14623488' rightBound='true' endPointsLinked='false'>
+                <linePoint x='0.0' y='0.0'/>
+                <linePoint x='0.10638298' y='-1.0'/>
+                <linePoint x='0.90425533' y='1.0'/>
+                <linePoint x='1.0' y='0.0'/>
+              </line>
+            </lines>
+          </bsbObject>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1107630705' name='freqA' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.2'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.2'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1107630703' name='freqB' label='' min='0.0' max='6.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='6.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1107630701' name='frqlow' label='' min='0.0' max='5000.0' bdresolution='-1' automationEnabled='false' value='116.345'>
+      <line name='' version='2' max='5000.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='116.345'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1107630699' name='gain' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.8'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.8'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1107630695' name='frqhgh' label='' min='0.0' max='5000.0' bdresolution='-1' automationEnabled='false' value='2822.3500400000003'>
+      <line name='' version='2' max='5000.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2822.3500400000003'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1107630693' name='dry' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.54'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.54'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1107629958' name='ResonatorON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
