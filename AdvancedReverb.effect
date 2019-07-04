@@ -1,0 +1,181 @@
+<effect>
+  <name>Advanced Reverb</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;AdvancedReverbON&gt; == 1) then
+    korig    =      &lt;dryMix&gt;
+    krev     =      1.0-korig
+    kfeed	=	&lt;feed&gt;
+    ilp1	=	1/10
+    ilp2	=	1/23
+    ilp3	=	1/41
+    kroll	=	&lt;cutoff&gt;
+;--------------------------------------------
+    ajunk    alpass  ain1,1.7,.1
+    aleft    alpass  ajunk,1.01,.07
+    ajunk    alpass  ain2,1.5,.2
+    aright   alpass  ajunk,1.33,.05
+;--------------------------------------------section left
+    kdel1    randi   .01,1,.666
+    kdel1    =       kdel1 + .1
+    addl1    delayr  .3
+    afeed1   deltapi kdel1
+    afeed1   =       afeed1 + kfeed*aleft
+             delayw  aleft
+;--------------------------------------------section right
+    kdel2    randi   .01,.95,.777
+    kdel2    =       kdel2 + .1
+    addl2    delayr  .3
+    afeed2   deltapi kdel2
+    afeed2   =       afeed2 + kfeed*aright
+             delayw  aright
+;--------------------------------------------feedback
+    aglobin = (afeed1+afeed2)*.05
+    atap1 comb aglobin,3.3,ilp1
+    atap2 comb aglobin,3.3,ilp2
+    atap3 comb aglobin,3.3,ilp3
+    aglobreva alpass atap1+atap2+atap3,2.6,.085
+    aglobrev tone aglobreva,kroll
+;---------------------------------------------
+    kdel3 randi .003,1,.888
+    kdel3 = kdel3 + .05
+    addl3 delayr .2
+    agr1 deltapi kdel3
+         delayw aglobrev
+;---------------------------------------------
+    kdel4 randi .003,1,.999
+    kdel4 = kdel4 + .05
+    addl4 delayr .2
+    agr2 deltapi kdel4
+         delayw aglobrev
+;---------------------------------------------
+    arevl = agr1+afeed1
+    arevr = agr2+afeed2
+    aout1 = (ain1*korig)+(arevl*krev)
+    aout2 = (ain2*korig)+(arevr*krev) 
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif
+</code>
+  <comments>Advanced Reverb by Eric Lyon</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>7</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>173</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>cutoff</objectName>
+          <x>70</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>20.0</minimum>
+          <maximum>15000.0</maximum>
+          <value>6461.4</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>cutoff</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>feed</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.49786</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>feedback</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>AdvancedReverbON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>dryMix</objectName>
+          <x>120</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.5</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>dryMix</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1608504457' name='feed' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.49786'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.49786'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1608504455' name='dryMix' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.5'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-850961973' name='cutoff' label='' min='20.0' max='15000.0' bdresolution='-1' automationEnabled='false' value='6461.4'>
+      <line name='' version='2' max='15000.0' min='20.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='6461.4'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-850961971' name='AdvancedReverbON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
