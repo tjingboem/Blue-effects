@@ -1,0 +1,168 @@
+<effect>
+  <name>Chad the Distorter</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;ChadON&gt; == 1) then
+    setksmps	1
+    kfct	=	&lt;delFct&gt;
+    kdry	=	&lt;dry&gt;
+    kco         =	&lt;cofreq&gt;
+    aflt1	tone	ain1, kco
+    aflt2	tone	ain2, kco
+    amod1	=	((aflt1+0dbfs)/(0dbfs*2))*kfct
+    amod2	=	((aflt2+0dbfs)/(0dbfs*2))*kfct
+    afdbk1	init	0
+    afdbk2	init	0
+
+    adel1	vdelay	ain1, amod2+afdbk1, 5
+    adel2	vdelay	ain2, amod1+afdbk2, 5
+    afdbk1	tone	((adel1+0dbfs)/(0dbfs*2))*kfct, kco
+    afdbk2	tone	((adel2+0dbfs)/(0dbfs*2))*kfct, kco
+
+    aout1	=	(kdry*ain1)+(adel1*(1-kdry))
+    aout2	=	(kdry*ain2)+(adel2*(1-kdry))
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>Distortion using variable delay line modulated by input signal+feedback.  Filter affects modulators and feedback, while delay factor determines how big the delay line is.  This distortion unit is capable of some subtle feedback, and, since it cross-modulates between channles, is best applied to a dynamic stereo mix.  All parameters are automatable.</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>50</x>
+          <y>40</y>
+          <label>Delay Factor</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>cofreq</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>20.0</minimum>
+          <maximum>10000.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>2641.8</value>
+          <sliderWidth>250</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>90</x>
+          <y>5</y>
+          <label>Filter Cutoff</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>dry</objectName>
+          <x>235</x>
+          <y>40</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.15</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+          <label>label</label>
+          <labelEnabled>false</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>280</x>
+          <y>50</y>
+          <label>Mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>delFct</objectName>
+          <x>10</x>
+          <y>45</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>5.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>2.1</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>ChadON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='196006906' name='dry' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.15'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.15'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='196006912' name='cofreq' label='' min='20.0' max='10000.0' bdresolution='0.1' automationEnabled='false' value='2641.8'>
+      <line name='' version='2' max='10000.0' min='20.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2641.8'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='196006914' name='delFct' label='' min='0.0' max='5.0' bdresolution='0.1' automationEnabled='false' value='2.1'>
+      <line name='' version='2' max='5.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.1'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525173' name='ChadON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
