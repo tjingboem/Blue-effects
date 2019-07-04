@@ -1,0 +1,206 @@
+<effect>
+  <name>Dodd the Distorter</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;DoddON&gt; == 1) then
+    setksmps	1
+    alast1	init	0
+    alast2	init	0
+    alsto1	init	0
+    alsto2	init	0
+    inorm	=	0dbfs
+    kdry	=	&lt;dry&gt;
+    idelamp	=	i(&lt;delAmp&gt;)
+    kdelfrq	=	&lt;delFrq&gt;
+
+    adel1	jspline	idelamp *.5, kdelfrq, kdelfrq
+    adel2	jspline	idelamp *.5, kdelfrq, kdelfrq
+    adel1	=	adel1 + (idelamp * .5)
+    adel2	=	adel2 + (idelamp * .5)
+
+    ain1	=	ain1 / inorm                                            ; notmalize signal to 1
+    ain2	=	ain2 / inorm
+
+    adiff1	=	abs(ain1 - alast1)                                      ; abracadabra        
+    adiff2	=	abs(ain2 - alast2)
+    asign1	divz	adiff1, ain1 - alast1, 1
+    asign2	divz	adiff2, ain2 - alast2, 1
+    aout1	=	alsto1 + (sqrt(sqrt(adiff1)) * asign1)
+    aout2	=	alsto2 + (sqrt(sqrt(adiff2)) * asign2)
+    if (idelamp == 0) then
+        alast1	=	ain1
+        alast2	=	ain2
+    else
+        alast1	vdelay	ain1, adel1, idelamp
+        alast2	vdelay	ain2, adel2, idelamp
+    endif
+    alsto1	=	aout1
+    alsto2	=	aout2
+
+    aout1	=	aout1 * inorm /  &lt;scale&gt;                                ;reconstruct original amplitude                           
+    aout2	=	aout2 * inorm /  &lt;scale&gt;
+
+    if (&lt;dcBlock&gt; &gt; 0) then
+    aout1	dcblock	aout1
+    aout2	dcblock	aout2
+    endif
+
+    aout1	=	(ain1*kdry)+(aout1*(1-kdry))
+    aout2	=	(ain2*kdry)+(aout2*(1-kdry))
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>Experimental distortion unit of my own design. Basically, it tries to exagerate differences between adjascent samples, which winds up having the effect of sharpening all curves. The comparative samples can be delayed, adding more character to the distortion. Scale factor helps tame the resultant signal amplitude.</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>DoddON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>dcBlock</objectName>
+          <x>215</x>
+          <y>10</y>
+          <automationAllowed>false</automationAllowed>
+          <label>DCBlock</label>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>scale</objectName>
+          <x>120</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>20.0</maximum>
+          <value>11.800000000000002</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>scale</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>delAmp</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>delay</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>dry</objectName>
+          <x>170</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.2800000000000001</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>mix</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>delFrq</objectName>
+          <x>60</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>500.0</maximum>
+          <value>0.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>jitter</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-327896685' name='scale' label='' min='0.0' max='20.0' bdresolution='-1' automationEnabled='false' value='11.800000000000002'>
+      <line name='' version='2' max='20.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='11.800000000000002'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-327896683' name='dry' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.2800000000000001'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.2800000000000001'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-327896681' name='DoddON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-327896679' name='delAmp' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-327896677' name='delFrq' label='' min='0.0' max='500.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='500.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
