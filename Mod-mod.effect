@@ -1,0 +1,646 @@
+<effect>
+  <name>Mod-mod</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;Mod-modON&gt; == 1) then
+    kdel1amp	=	&lt;del1Amp&gt; * .5
+    kdel1frq	=	&lt;del1FrqA&gt; + &lt;del1FrqB&gt; + &lt;del1FrqC&gt;
+    kmod1amp	=	&lt;mod1Amp&gt; * .5
+    kmod1frqmin	=	kdel1frq * (&lt;mod1MinFrqA&gt; + &lt;mod1MinFrqB&gt;)
+    kmod1frqmax	=	kdel1frq * (&lt;mod1MaxFrqA&gt; +&lt;mod1MaxFrqB&gt;)
+    kdel2amp	=	&lt;del2Amp&gt; * .5
+    kdel2frq	=	&lt;del2FrqA&gt; + &lt;del2FrqB&gt; + &lt;del2FrqC&gt;
+    kmod2amp	=	&lt;mod2Amp&gt; * .5
+    kmod2frqmin	=	kdel1frq * (&lt;mod2MinFrqA&gt; + &lt;mod2MinFrqB&gt;)
+    kmod2frqmax	=	kdel1frq * (&lt;mod2MaxFrqA&gt; + &lt;mod2MaxFrqB&gt;)
+    kdel1fdbk	=	&lt;del1Fdbk&gt;
+    kdel2fdbk	=	&lt;del2Fdbk&gt;
+    imaxdel		=	4
+    itbsin          ftgentmp    0, 0, 8192, 10, 1, 0
+
+    ; delay modifiers
+    kmod1A	jspline	kmod1amp, kmod1frqmin, kmod1frqmax                      ; left
+    kmod1B	jspline	kmod1amp, kmod1frqmin, kmod1frqmax                      ; right
+    kmod1A	+=	kmod1amp
+    kmod1B	+=	kmod1amp
+    kmod2A	jspline	kmod2amp, kmod2frqmin, kmod2frqmax                      ; left
+    kmod2B	jspline	kmod2amp, kmod2frqmin, kmod2frqmax                      ; right
+    kmod2A	+=	kmod2amp
+    kmod2B	+=	kmod2amp
+
+    ; delay oscilators
+    kdel1A	oscili	kdel1amp, kdel1frq * (1 + kmod1A), itbsin
+    kdel1B	oscili	kdel1amp, kdel1frq * (1 + kmod1B), itbsin
+    kdel1A	+=	kdel1amp
+    kdel1B	+=	kdel1amp
+    kdel2A	oscili	kdel2amp, kdel2frq * (1 + kmod2A), itbsin
+    kdel2B	oscili	kdel2amp, kdel2frq * (1 + kmod2B), itbsin
+    kdel2A	+=	kdel2amp
+    kdel2B	+=	kdel2amp
+
+    ; setup delay lines
+
+    afdbk1	init	0
+    afdbk2	init	0
+
+    adelL	delayr	imaxdel
+    afeed1A	deltapi	kdel1A
+    afeed2A	deltapi	kdel2A
+    delayw	ain1 + afdbk1
+
+    adelR	delayr	imaxdel
+    afeed1B	deltapi	kdel1B
+    afeed2B	deltapi	kdel2B
+    delayw	ain2 + afdbk2
+
+    afdbk1	=	((afeed1A + afeed1B)/2) * kdel1fdbk
+    afdbk2	=	((afeed2A + afeed2B)/2) * kdel2fdbk
+
+    aout1	=	(ain1 + afeed1A + afeed2A) * .33
+    aout2	=	(ain2 + afeed1B + afeed2B) * .33
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>A dual modulator, dual channel delay-based modulator. Each modulator uses an oscillator as the base to modulate the delay lines; 
+this can be an LFO or audio-range frequency. These oscillators are then modulated by their own jspline modulator, fully configurable in the UI. 
+The results can be anything from full-on distortion to subtle chorus effects.</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>Mod-modON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>305</x>
+          <y>10</y>
+          <groupName>delay 2</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+            <objectName></objectName>
+            <x>5</x>
+            <y>95</y>
+            <groupName>jitter</groupName>
+            <backgroundColor>0x00000033</backgroundColor>
+            <borderColor>0x000000ff</borderColor>
+            <labelTextColor>0xffffffff</labelTextColor>
+            <titleEnabled>true</titleEnabled>
+            <width>20</width>
+            <height>20</height>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+              <objectName></objectName>
+              <x>100</x>
+              <y>95</y>
+              <label>Mod. Max. Freq.</label>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+              <objectName></objectName>
+              <x>100</x>
+              <y>45</y>
+              <label>Mod. Min. Freq.</label>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+              <objectName>mod2MinFrqB</objectName>
+              <x>115</x>
+              <y>25</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1000.0</maximum>
+              <bdresolution>1</bdresolution>
+              <value>242.0</value>
+              <sliderWidth>100</sliderWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>true</valueDisplayEnabled>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+              <objectName></objectName>
+              <x>10</x>
+              <y>95</y>
+              <label>range</label>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+              <objectName>mod2Amp</objectName>
+              <x>10</x>
+              <y>10</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>2.0</maximum>
+              <bdresolution>0.1</bdresolution>
+              <value>0.6</value>
+              <sliderHeight>90</sliderHeight>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>false</valueDisplayEnabled>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+              <objectName>mod2MinFrqA</objectName>
+              <x>60</x>
+              <y>10</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1.0</maximum>
+              <value>0.0</value>
+              <knobWidth>40</knobWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>false</valueDisplayEnabled>
+              <label>label</label>
+              <labelEnabled>false</labelEnabled>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+              <objectName>mod2MaxFrqB</objectName>
+              <x>115</x>
+              <y>75</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1000.0</maximum>
+              <bdresolution>1</bdresolution>
+              <value>394.0</value>
+              <sliderWidth>100</sliderWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>true</valueDisplayEnabled>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+              <objectName>mod2MaxFrqA</objectName>
+              <x>60</x>
+              <y>65</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1.0</maximum>
+              <value>0.23</value>
+              <knobWidth>40</knobWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>false</valueDisplayEnabled>
+              <label>label</label>
+              <labelEnabled>false</labelEnabled>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>del2Fdbk</objectName>
+            <x>60</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.35000000000000003</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>feedback</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>del2FrqA</objectName>
+            <x>130</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>0.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>130</x>
+            <y>10</y>
+            <label>Delay Frequency</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>del2FrqC</objectName>
+            <x>130</x>
+            <y>60</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>22000.0</maximum>
+            <bdresolution>1E+2</bdresolution>
+            <value>3600.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>del2FrqB</objectName>
+            <x>130</x>
+            <y>40</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>100.0</maximum>
+            <bdresolution>1</bdresolution>
+            <value>0.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>del2Amp</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>2.0</maximum>
+            <value>0.856174744</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>delay</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>delay 1</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>294</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>135</x>
+            <y>10</y>
+            <label>Delay Frequency</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>del1FrqC</objectName>
+            <x>135</x>
+            <y>60</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>22000.0</maximum>
+            <bdresolution>1E+2</bdresolution>
+            <value>1600.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+            <objectName></objectName>
+            <x>5</x>
+            <y>95</y>
+            <groupName>jitter</groupName>
+            <backgroundColor>0x00000033</backgroundColor>
+            <borderColor>0x000000ff</borderColor>
+            <labelTextColor>0xffffffff</labelTextColor>
+            <titleEnabled>true</titleEnabled>
+            <width>20</width>
+            <height>20</height>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+              <objectName>mod1MaxFrqB</objectName>
+              <x>120</x>
+              <y>75</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1000.0</maximum>
+              <bdresolution>1</bdresolution>
+              <value>551.0</value>
+              <sliderWidth>100</sliderWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>true</valueDisplayEnabled>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+              <objectName>mod1MinFrqA</objectName>
+              <x>65</x>
+              <y>10</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1.0</maximum>
+              <value>0.09</value>
+              <knobWidth>40</knobWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>false</valueDisplayEnabled>
+              <label>label</label>
+              <labelEnabled>false</labelEnabled>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+              <objectName></objectName>
+              <x>105</x>
+              <y>95</y>
+              <label>Mod. Max. Freq.</label>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+              <objectName>mod1Amp</objectName>
+              <x>15</x>
+              <y>10</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>2.0</maximum>
+              <bdresolution>0.1</bdresolution>
+              <value>1.1</value>
+              <sliderHeight>90</sliderHeight>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>false</valueDisplayEnabled>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+              <objectName></objectName>
+              <x>15</x>
+              <y>95</y>
+              <label>range</label>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+              <objectName>mod1MinFrqB</objectName>
+              <x>120</x>
+              <y>20</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1000.0</maximum>
+              <bdresolution>1</bdresolution>
+              <value>385.0</value>
+              <sliderWidth>100</sliderWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>true</valueDisplayEnabled>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+              <objectName></objectName>
+              <x>105</x>
+              <y>40</y>
+              <label>Mod. Min. Freq.</label>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+            <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+              <objectName>mod1MaxFrqA</objectName>
+              <x>65</x>
+              <y>60</y>
+              <automationAllowed>true</automationAllowed>
+              <minimum>0.0</minimum>
+              <maximum>1.0</maximum>
+              <value>0.54</value>
+              <knobWidth>40</knobWidth>
+              <randomizable>true</randomizable>
+              <valueDisplayEnabled>false</valueDisplayEnabled>
+              <label>label</label>
+              <labelEnabled>false</labelEnabled>
+              <font>
+                <name>System Regular</name>
+                <size>12.0</size>
+              </font>
+            </bsbObject>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>del1FrqB</objectName>
+            <x>135</x>
+            <y>40</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>100.0</maximum>
+            <bdresolution>1</bdresolution>
+            <value>7.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>del1Fdbk</objectName>
+            <x>65</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.43</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>feedback</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>del1Amp</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>2.0</maximum>
+            <value>0.058489654</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>delay</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>del1FrqA</objectName>
+            <x>135</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>0.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-143771836' name='Mod-modON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771834' name='del1FrqB' label='' min='0.0' max='100.0' bdresolution='1' automationEnabled='false' value='7.0'>
+      <line name='' version='2' max='100.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='7.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771832' name='mod1Amp' label='' min='0.0' max='2.0' bdresolution='0.1' automationEnabled='false' value='1.1'>
+      <line name='' version='2' max='2.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.1'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771830' name='mod1MaxFrqA' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.54'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.54'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771828' name='mod1MinFrqA' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.09'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.09'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771826' name='mod1MinFrqB' label='' min='0.0' max='1000.0' bdresolution='1' automationEnabled='false' value='385.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='385.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771824' name='mod1MaxFrqB' label='' min='0.0' max='1000.0' bdresolution='1' automationEnabled='false' value='551.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='551.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771822' name='del1FrqA' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771820' name='del1FrqC' label='' min='0.0' max='22000.0' bdresolution='1E+2' automationEnabled='false' value='1600.0'>
+      <line name='' version='2' max='22000.0' min='0.0' bdresolution='1E+2' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1600.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771818' name='del1Amp' label='' min='0.0' max='2.0' bdresolution='-1' automationEnabled='false' value='0.058489654'>
+      <line name='' version='2' max='2.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.058489654'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771816' name='del1Fdbk' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.43'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.43'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771814' name='del2Fdbk' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.35000000000000003'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.35000000000000003'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771812' name='del2FrqC' label='' min='0.0' max='22000.0' bdresolution='1E+2' automationEnabled='false' value='3600.0'>
+      <line name='' version='2' max='22000.0' min='0.0' bdresolution='1E+2' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='3600.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771810' name='del2FrqB' label='' min='0.0' max='100.0' bdresolution='1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='100.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771808' name='del2FrqA' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771806' name='del2Amp' label='' min='0.0' max='2.0' bdresolution='-1' automationEnabled='false' value='0.856174744'>
+      <line name='' version='2' max='2.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.856174744'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771804' name='mod2Amp' label='' min='0.0' max='2.0' bdresolution='0.1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='2.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771802' name='mod2MaxFrqB' label='' min='0.0' max='1000.0' bdresolution='1' automationEnabled='false' value='394.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='394.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771800' name='mod2MinFrqB' label='' min='0.0' max='1000.0' bdresolution='1' automationEnabled='false' value='242.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='242.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771798' name='mod2MaxFrqA' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.23'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.23'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-143771796' name='mod2MinFrqA' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
