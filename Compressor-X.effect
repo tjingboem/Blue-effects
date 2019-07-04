@@ -1,0 +1,301 @@
+<effect>
+  <name>Compressor-X</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;Compressor-XON&gt; == 1) then
+    krms1	rms ain1
+    arms1	upsamp krms1
+
+    aout1 init 0
+    aout2 init 0
+
+    if &lt;CompType&gt; == 0 then
+	aout1	compress ain1, ain1, &lt;Threshhold&gt;, &lt;LowKnee&gt;, &lt;HighKnee&gt;, &lt;Ratio&gt;, &lt;Attack&gt;, &lt;Release&gt;, .05
+    else
+	aout1	compress ain1, arms1, &lt;Threshhold&gt;, &lt;LowKnee&gt;, &lt;HighKnee&gt;, &lt;Ratio&gt;, &lt;Attack&gt;, &lt;Release&gt;, .05
+    endif
+	
+    krms2	rms ain2
+    arms2	upsamp krms2
+
+    if &lt;CompType&gt; == 0 then
+	aout2	compress ain2, ain2, &lt;Threshhold&gt;, &lt;LowKnee&gt;, &lt;HighKnee&gt;, &lt;Ratio&gt;, &lt;Attack&gt;, &lt;Release&gt;, .05
+    else
+	aout2	compress ain2, arms2, &lt;Threshhold&gt;, &lt;LowKnee&gt;, &lt;HighKnee&gt;, &lt;Ratio&gt;, &lt;Attack&gt;, &lt;Release&gt;, .05
+    endif
+
+    aout1	= aout1 * &lt;MakeUp&gt;
+    aout2	= aout2 * &lt;MakeUp&gt;
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>This compressor introduces a look-ahead delay of 0.05s which you should compensate for with an artificially added 
+delay to all the tracks that dont have compression on. Based around compress opcode. 
+Switchable peak/RMS compression (if you can tell the difference).</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>10</width>
+      <height>5</height>
+      <gridStyle>NONE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>290</x>
+          <y>90</y>
+          <label>compression type:</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Attack</objectName>
+          <x>271</x>
+          <y>11</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>0.1</maximum>
+          <value>0.006</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>Attack</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>90</x>
+          <y>68</y>
+          <label>HighKnee</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Threshhold</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>-90.0</minimum>
+          <maximum>90.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>CompType</objectName>
+          <x>320</x>
+          <y>105</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>1</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='-413794022'>
+              <name>Peak</name>
+              <value>0</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-413794021'>
+              <name>RMS</name>
+              <value>1</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Ratio</objectName>
+          <x>10</x>
+          <y>105</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>1.0</minimum>
+          <maximum>10.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>1.5</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>HighKnee</objectName>
+          <x>10</x>
+          <y>70</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>90.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>60.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>79</x>
+          <y>9</y>
+          <label>Threshhold</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>Compressor-XON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>MakeUp</objectName>
+          <x>380</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>5.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>2.0</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>90</x>
+          <y>45</y>
+          <label>LowKnee</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Release</objectName>
+          <x>320</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>0.2</maximum>
+          <value>0.04000000000000001</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>release</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>100</x>
+          <y>102</y>
+          <label>Ratio</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>LowKnee</objectName>
+          <x>10</x>
+          <y>45</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>90.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>48.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>380</x>
+          <y>65</y>
+          <label>Gain</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-413794037' name='LowKnee' label='' min='0.0' max='90.0' bdresolution='0.1' automationEnabled='false' value='48.0'>
+      <line name='' version='2' max='90.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='48.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794035' name='Compressor-XON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794033' name='Ratio' label='' min='1.0' max='10.0' bdresolution='0.1' automationEnabled='false' value='1.5'>
+      <line name='' version='2' max='10.0' min='1.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.5'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794031' name='Release' label='' min='0.0' max='0.2' bdresolution='-1' automationEnabled='false' value='0.04000000000000001'>
+      <line name='' version='2' max='0.2' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.04000000000000001'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794029' name='Threshhold' label='' min='-90.0' max='90.0' bdresolution='0.1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='90.0' min='-90.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794027' name='Attack' label='' min='0.0' max='0.1' bdresolution='-1' automationEnabled='false' value='0.006'>
+      <line name='' version='2' max='0.1' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.006'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794025' name='MakeUp' label='' min='0.0' max='5.0' bdresolution='0.1' automationEnabled='false' value='2.0'>
+      <line name='' version='2' max='5.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794023' name='HighKnee' label='' min='0.0' max='90.0' bdresolution='0.1' automationEnabled='false' value='60.0'>
+      <line name='' version='2' max='90.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='60.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
