@@ -1,0 +1,121 @@
+<effect>
+  <name>MonoToStereo v1.0</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;MonoToStereoON&gt; == 1) then
+	cggoto (&lt;wet&gt; != 0), wet 
+    dry:
+    aout1	=		ain1
+    aout2	=		ain2
+	goto 		done
+
+    wet:
+
+    afilt1	butterlp	ain1, 100
+    afilt2	butterbp	ain1, 200, 100
+    afilt3	butterbp	ain1, 500, 200
+    afilt4	butterbp	ain1, 1000, 300
+    afilt5	butterbp	ain1, 1700, 400
+    afilt6	butterbp	ain1, 2600, 500
+    afilt7	butterbp	ain1, 3700, 600
+    afilt8	butterbp	ain1, 5000, 700
+    afilt9	butterbp	ain1, 6500, 800
+    afilt10	butterbp	ain1, 8200, 900
+    afilt11	butterbp	ain1, 10100, 1000
+    afilt12	butterbp	ain1, 12300, 1100
+    afilt13	butterbp	ain1, 14600, 1200
+    afilt14	butterhp	ain1, 17100
+
+    afiltl	=		(afilt1 + afilt3 + afilt5 + afilt7 + afilt9 + afilt11 + afilt13) * 1.5
+    afiltr	=		(afilt2 + afilt4 + afilt6 + afilt8 + afilt10 + afilt12 + afilt14) * 1.5
+
+    aout1	=		(ain1 * (1-&lt;wet&gt;)) + (afiltl * &lt;wet&gt;)
+    aout2	=		(ain2 * (1-&lt;wet&gt;)) + (afiltr * &lt;wet&gt;)
+
+    done:
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>Author: Atte Andr? Jensen (atte.dk), 2008
+
+Makes a stereo signal out of a mono signal by damping different bands in each channel.
+
+Changelog:
+
+1.0
+* Initial release</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>MonoToStereoON</objectName>
+          <x>0</x>
+          <y>0</y>
+          <automationAllowed>true</automationAllowed>
+          <label/>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>wet</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.51</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>mix</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-46101911' name='wet' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.51'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.51'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-575353539' name='MonoToStereoON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
