@@ -1,0 +1,283 @@
+<effect>
+  <name>Schroeder Reverb</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;SchroederON&gt; == 1) then
+    krvt	=	&lt;Schroeder_reverbTime&gt;
+    ilptcmb	=	i(&lt;Schroeder_combLoop&gt;)
+    ilptap1	=	i(&lt;Schroeder_loopDelay1&gt;)
+    ilptap2	=	i(&lt;Schroeder_loopDelay2&gt;)
+    kdrymix	=	&lt;Schroeder_dryMix&gt;
+    kcutoff	=	&lt;Schroeder_cutoff&gt;
+
+    adel	delayr	ilptcmb*2                                               ;comb filters
+    acomb1	deltapi	ilptcmb
+    afilt1	tone	acomb1, kcutoff
+    afilt1	balance	afilt1, acomb1
+    kgain1	pow	.001, ilptcmb/krvt
+    acomb2	deltapi	ilptcmb*1.7
+    afilt2	tone	acomb2, kcutoff
+    afilt2	balance	afilt2, acomb2
+    kgain2	pow	.001, (ilptcmb*1.7)/krvt
+    acomb3	deltapi	ilptcmb*.333
+    afilt3	tone	acomb3, kcutoff
+    afilt3	balance	afilt3, acomb3
+    kgain3	pow	.001, (ilptcmb*.333)/krvt
+    acomb4	deltapi	ilptcmb*1.666
+    afilt4	tone	acomb4, kcutoff
+    afilt4	balance	afilt4, acomb4
+    kgain4	pow	.001, (ilptcmb*1.666)/krvt
+                delayw	(((afilt1*kgain1)+(afilt2*kgain2)+(afilt3*kgain3)+(afilt4*kgain4))/4)+ain1+ain2
+    acombL	=	(acomb1+acomb2)/2
+    acombR	=	(acomb3+acomb4)/2
+
+    aap1L	alpass	acombL, krvt, ilptap1                                   ;all-pass filters
+    aap2L	alpass	aap1L, krvt, ilptap2
+    aap1R	alpass	acombR, krvt, ilptap1
+    aap2R	alpass	aap1R, krvt, ilptap2
+    arvbL	=	aap2L
+    arvbR	=	aap2R
+
+    aout1	dcblock	(ain1*kdrymix)+(arvbL*(1-kdrymix))                      ;mix wet and dry
+    aout2	dcblock	(ain2*kdrymix)+(arvbR*(1-kdrymix))
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+Straight-forward Schroeder reverb. Comb filter times are multiples of one input; each allpass delay configurable. Pretty much by the book.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+Time            -       reverb time in seconds
+LP Filter Cutoff-       cutoff frequency of a simple filter
+Comb            -       amount of ringing effect in the reverb
+Delay1/Delay2   -       2 settings for loop time in seconds
+Mix             -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2017
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by Michael Bechard</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>SchroederON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Schroeder_reverbTime</objectName>
+          <x>20</x>
+          <y>20</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>4.0</maximum>
+          <value>2.0332127</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>Time</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>Schroeder_dryMix</objectName>
+          <x>280</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.49</value>
+          <sliderHeight>100</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>30</x>
+          <y>125</y>
+          <label>LP Filter Cutoff</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>285</x>
+          <y>110</y>
+          <label>Mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Schroeder_cutoff</objectName>
+          <x>20</x>
+          <y>110</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>10000.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>2097.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>90</x>
+          <y>15</y>
+          <groupName>loop time</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Schroeder_loopDelay2</objectName>
+            <x>125</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>0.1</maximum>
+            <value>0.1</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Delay 2</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Schroeder_combLoop</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>0.2</maximum>
+            <value>0.070382446</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Comb</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Schroeder_loopDelay1</objectName>
+            <x>65</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>0.1</maximum>
+            <value>0.048102405</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Delay 1</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1342660358' name='Schroeder_reverbTime' label='' min='0.0' max='4.0' bdresolution='-1' automationEnabled='false' value='2.0332127'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0332127'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1342660354' name='Schroeder_cutoff' label='' min='0.0' max='10000.0' bdresolution='1' automationEnabled='false' value='2097.0'>
+      <line name='' version='2' max='10000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2097.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1342660346' name='Schroeder_combLoop' label='' min='0.0' max='0.2' bdresolution='-1' automationEnabled='false' value='0.070382446'>
+      <line name='' version='2' max='0.2' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.070382446'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1342660344' name='Schroeder_loopDelay1' label='' min='0.0' max='0.1' bdresolution='-1' automationEnabled='false' value='0.048102405'>
+      <line name='' version='2' max='0.1' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.048102405'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1342660342' name='Schroeder_loopDelay2' label='' min='0.0' max='0.1' bdresolution='-1' automationEnabled='false' value='0.1'>
+      <line name='' version='2' max='0.1' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.1'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-850961807' name='Schroeder_dryMix' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.49'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.49'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104167' name='SchroederON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

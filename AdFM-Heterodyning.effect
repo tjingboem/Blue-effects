@@ -1,0 +1,184 @@
+<effect>
+  <name>AdFM - Heterodyning</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;AdFMheteroON&gt; == 1) then
+    itab	chnget	&quot;AdFM.sine_table&quot;
+
+    if (itab == 0) then
+	itab	ftgen 	0, 0, 65537, 10, 1 ; sine wave
+	chnset 	itab, &quot;AdFM.sine_table&quot;
+    endif
+
+    aoutl1 	HFM	ain1, &lt;AdFMhetero_fc_fm ratio&gt;, &lt;AdFMhetero_index&gt;, itab
+    aoutr2 	HFM	ain2, &lt;AdFMhetero_fc_fm ratio&gt;, &lt;AdFMhetero_index&gt;, itab
+    aout1  ntrpol  aoutl1, ain1, &lt;AdFMhetero_mix&gt;
+    aout2  ntrpol  aoutr2, ain2, &lt;AdFMhetero_mix&gt;
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+blue port of the heterodyning FM version of Victor Lazzarini&apos;s Adaptive FM Synthesis (AdFM) 
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+fc:fm           -       ratio frequency carrier frequency modulator
+index           -       # of extra (dis)harmonic frequencies
+mix             -       mix direct signal with effect
+
+---
+
+version 1.01, May 2020
+- added comments on controllers
+
+version 1.0, 2018
+- initial version by Menno Knevel, using code from Victor Lazzarini
+</comments>
+  <opcodeList>
+    <udo>
+      <opcodeName>HFM</opcodeName>
+      <outTypes>a</outTypes>
+      <inTypes>akki</inTypes>
+      <codeBody>setksmps 1
+i2pi = 2*$M_PI        /* two-pi constant */ 
+
+asig,kratio,kndx,ifn xin /* input parameters */
+kcps,kamp ptrack asig, 512 /* pitch tracking */
+kfm = kcps/kratio  /* fm frequency  */
+
+adt 	oscili kndx/i2pi, kfm, ifn  /* modulator */
+acs 	tablei adt, ifn, 1, 0.25, 1 /* phase modulation */
+	xout  asig*acs /* heterodyning */
+</codeBody>
+      <comments></comments>
+    </udo>
+  </opcodeList>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>AdFMhetero_fc_fm ratio</objectName>
+          <x>15</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>1.0</minimum>
+          <maximum>8.0</maximum>
+          <value>2.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>fc:fm</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>115</x>
+          <y>10</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>AdFMhetero_mix</objectName>
+          <x>110</x>
+          <y>20</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.0</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>AdFMhetero_index</objectName>
+          <x>65</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>12.0</maximum>
+          <value>6.4</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>index</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>AdFMheteroON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1819683998' name='AdFMhetero_fc_fm ratio' label='' min='1.0' max='8.0' bdresolution='-1' automationEnabled='false' value='2.0'>
+      <line name='' version='2' max='8.0' min='1.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1819683994' name='AdFMhetero_index' label='' min='0.0' max='12.0' bdresolution='-1' automationEnabled='false' value='6.4'>
+      <line name='' version='2' max='12.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='6.4'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1819683992' name='AdFMhetero_mix' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104233' name='AdFMheteroON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

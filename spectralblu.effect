@@ -1,0 +1,222 @@
+<effect>
+  <name>spectralblu</name>
+  <enabled>false</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;BlurON&gt; == 1) then
+    ftps1  pvsanal   ain1, &lt;Blur_size&gt;, &lt;Blur_overlap&gt;, &lt;Blur_size&gt;, 1                         ; analyse it
+    ftps2  pvsanal   ain2, &lt;Blur_size&gt;, &lt;Blur_overlap&gt;, &lt;Blur_size&gt;, 1
+
+    fbul1  pvsblur   ftps1, &lt;Blur_blur&gt;, 5                                           ; blur it for 200 ms
+    fbul2  pvsblur   ftps2, &lt;Blur_blur&gt;, 5 
+
+    aouts1  pvsynth   fbul1 
+    aouts2  pvsynth   fbul2  
+
+    aout1 = (ain1 * &lt;Blur_wetdry&gt;) + (aouts1 * (1 - &lt;Blur_wetdry&gt;))
+    aout2 = (ain2 * &lt;Blur_wetdry&gt;) + (aouts2 * (1 - &lt;Blur_wetdry&gt;))     
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+spectral blurring effect using Victor Lazzarini&apos;s pvsblur
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+blur time       -       The FFT size in samples for blurring the incoming signal
+overlap         -       The distance in samples (“hop size”) between overlapping analysis frames
+size            -       The FFT size in samples
+mix             -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2018
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2007
+- initial version by Peiman Khosravi
+See http://www.csounds.com/journal/issue7/onTheDesignOfSpectralToolsInBlue.html
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>135</x>
+          <y>40</y>
+          <label>overlap</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>Blur_size</objectName>
+          <x>77</x>
+          <y>62</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>3</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='196006812'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006813'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006814'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006815'>
+              <name>2048</name>
+              <value>2048</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006816'>
+              <name>4096</name>
+              <value>4096</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Blur_blur</objectName>
+          <x>11</x>
+          <y>13</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>4.0</maximum>
+          <value>0.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>blur time</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>Blur_overlap</objectName>
+          <x>77</x>
+          <y>37</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>2</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='196006809'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006810'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006811'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>Blur_wetdry</objectName>
+          <x>185</x>
+          <y>25</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.6</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>191</x>
+          <y>15</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>135</x>
+          <y>66</y>
+          <label>size</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>BlurON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-134333818' name='Blur_blur' label='' min='0.0' max='4.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-486075091' name='Blur_wetdry' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104245' name='BlurON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

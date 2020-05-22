@@ -1,0 +1,585 @@
+<effect>
+  <name>Newtonator</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;NewtonatorON&gt; == 1) then
+    setksmps	1
+
+    ifollow	=   &lt;Newtonator_follow&gt;                                         ; General vars
+    kefatk	=   &lt;Newtonator_follow attack&gt;
+    kefrel	=   &lt;Newtonator_follow release&gt;
+    iclip	=   &lt;Newtonator_clip&gt;
+    ifcliplim   =   &lt;Newtonator_cliplim&gt;
+    ipad	=   0dbfs * .985                                                ;padding for limitting
+    kscale	=   &lt;Newtonator_prescale&gt;
+    kgscale_ =  sqrt(&lt;Newtonator_grav scale&gt;)
+    kgscale =   (1.0001 - kgscale_) * 2
+    kdry	=   &lt;Newtonator_dry&gt;
+    kfattr_	pow &lt;Newtonator_floor attract&gt;, 4
+    kfattr	=   kfattr_ / 4
+    kgrav	=   &lt;Newtonator_gravity&gt;                                        ;gravity
+    igmtype	=   &lt;Newtonator_gravity type&gt;
+    kgmfrq	=   &lt;Newtonator_gravity freq&gt;
+    kgmsprd	=   &lt;Newtonator_gravity spread&gt; * kgmfrq
+    kgmdpth	=   &lt;Newtonator_gravity depth&gt;
+
+; Chn 1 vars
+    kgrav1	init	1                                                       ;gravity direction
+    kpvveloc1	init	-.0001                                                  ;previous vertical velocity
+    kvveloc1	init	0                                                       ;vertical velocity
+    kfloor1	downsamp ain1*kscale                                            ;floor
+    kpfloor1	init	0                                                       ;previous floor value
+    kpos1	init	0                                                       ;y-position
+    kppos1	init	0                                                       ;previous y-position
+
+; Chn 2 vars
+    kgrav2	init	-1                                                      ;gravity direction
+    kpvveloc2	init	.0001                                                   ;previous vertical velocity
+    kvveloc2	init	0                                                       ;vertical velocity
+    kfloor2	downsamp ain2*kscale                                            ;floor
+    kpfloor2	init	0                                                       ;previous floor value
+    kpos2	init	0                                                       ;y-position
+    kppos2	init	0                                                       ;previous y-position
+
+; ********* Gravity Modulation *********
+    if (igmtype == -1) then
+     kgmmod	jspline	kgmdpth, kgmfrq-kgmsprd, kgmfrq+kgmsprd
+    else
+     kgmmod	lfo	kgmdpth, kgmfrq, igmtype
+    endif
+    kgrav	=	kgrav*(1+kgmmod)
+
+; ********* 1ST CHANNEL *********
+    if (abs(kppos1 - kpfloor1) &lt; (kfattr * 0dbfs) &amp;&amp; kpvveloc1 &lt; kfloor1 - kpfloor1 &amp;&amp; kpvveloc1 &gt; kfattr * kgrav1 * kgrav * sr) then
+     kpos_	=	kfloor1                                                 ; vertical velocity isn&apos;t enough to overcome slope in floor,
+     kvveloc_ =	kfloor1 - kpfloor1                                              ; calculate new velocity
+    else
+     kgravscl =	sqrt(abs(kppos1 - kpfloor1) / (0dbfs * kgscale))                ; calculate current y-position (t is always 1)
+     kpos_	=	kppos1 + kpvveloc1 + (kgrav1 * kgrav * kgravscl / 2)
+     kvveloc_ =	kpvveloc1 + (kgrav1 * kgrav)
+    endif
+
+    if (kgrav1 &lt; 0 &amp;&amp; kpos_ &lt; kfloor1) then                                     ;normalize values with floor/ceiling
+     kgrav1	=	-kgrav1
+    elseif (kgrav1 &gt; 0 &amp;&amp; kpos_ &gt;= kfloor1) then
+     kgrav1	=	-kgrav1
+    endif
+    if (iclip == 0) then
+     kpos1	=	kpos_
+    else
+     kpos1	limit	kpos_, -ipad, ipad
+    endif
+
+    kppos1	=	kpos1                                                   ;remember previous positions
+    kpvveloc1 =	kvveloc_
+    kpfloor1 =	kfloor1
+
+; ********* 2ND CHANNEL *********
+    if (abs(kppos2 - kpfloor2) &lt; (kfattr * 0dbfs) &amp;&amp; kpvveloc2 &gt; kfloor2 - kpfloor2 &amp;&amp; kpvveloc2 &lt; kfattr * kgrav2 * kgrav * sr) then
+     kpos_	=	kfloor2                                                 ; vertical velocity isn&apos;t enough to overcome slope in floor,
+     kvveloc_ =	kfloor2 - kpfloor2                                              ; calculate new velocity
+    else
+     kgravscl =	sqrt(abs(kppos2 - kpfloor2) / (0dbfs * kgscale))                ; calculate current y-position (t is always 1)
+     kpos_	=	kppos2 + kpvveloc2 + (kgrav2 * kgrav * kgravscl / 2)
+     kvveloc_ =	kpvveloc2 + (kgrav2 * kgrav)
+    endif
+
+    if (kgrav2 &lt; 0 &amp;&amp; kpos_ &lt;= kfloor2) then                                    ;normalize values with floor/ceiling
+     kgrav2	=	-kgrav2
+    elseif (kgrav2 &gt; 0 &amp;&amp; kpos_ &gt; kfloor2) then
+     kgrav2	=	-kgrav2
+    endif
+    if (iclip == 0) then
+     kpos2	=	kpos_
+    else
+     kpos2	limit	kpos_, -ipad, ipad
+    endif
+
+    kppos2	=	kpos2                                                   ;remember previous positions
+    kpvveloc2 =	kvveloc_
+    kpfloor2 =	kfloor2
+
+    aout1_	upsamp	kpos1                                                   ;calc output
+    aout2_	upsamp	kpos2
+    aout1	=	(kdry * ain1) + ((1 - kdry) * aout1_)
+    aout2	=	(kdry * ain2) + ((1 - kdry) * aout2_)
+
+    if (ifollow == 1) then                                                      ;follow original input amp if requested
+     afol1	follow2	ain1, kefatk, kefrel
+     afol2	follow2	ain2, kefatk, kefrel
+     aout1	=	aout1*afol1/0dbfs
+     aout2	=	aout2*afol2/0dbfs
+    endif
+
+    if (ifcliplim &gt; 0) then                                                     ;clip if requested
+     aout1	clip	aout1, 0, 0dbfs*ifcliplim
+     aout2	clip	aout2, 0, 0dbfs*ifcliplim
+    endif
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>DESCRIPTION:
+
+The Newtonator is an FSU distortion unit of my own design that is more than capable of mangling the input audio beyond recognition. It is also capable of
+more subtle distortion, and can act as a low-pass filter with the correct settings. It is automation and &quot;randomize&quot; friendly.
+
+The concept behind it is simple. Imagine a ball rolling along on top of the input waveform at a constant forward velocity equal to the sample-rate. It obeys
+the laws of gravity. Because of this, whenever the ball encounters an upward slope in the waveform (sometimes referred to as the floor in this
+documentation), it can be propelled upward beyond the declining slope, depending on the gravitational pull and steepness of the slope. The output waveform is the
+path this ball takes through the air.
+
+That&apos;s the gist of it. The parameters are described in detail below. This was fun to make and continues to be fun to use. I hope you enjoy.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+Gravity         -       The base gravitational pull on the ball.
+Pre-scale       -       Scales the input audio up or down in amplitude before it is processed. This can have a significant effect on the output, as a decrease in
+                        amplitude will decrease the steepness of all the slopes in the input. Scaling down will also make the output more consistent, as high frequency details will
+                        diminish and the ball will be more likely to sail over them. Likewise, scaling the input up can exagerate the output of the Newtonator.
+Final Clip Limit-       Clipping occurs at the very end of the signal path in order to save your speakers and further distort the signal (the Newtonator&apos;s output is
+                        often very hot). This knob affects the limit of the clipping. If this setting is at zero, no clipping will occur.
+Clip Path       -       Not to be confused with the clipping that takes place at the end of the output, this clipping occurs at the same time the current position and
+                        velocity of the ball is calculated per-sample. Therefore it can drastically affect the output sound, and in a much different way than any clipping done at
+                        the final output stage of the Newtonator. Selecting this option is a good way to tame the output.
+Floor Attraction-       If floor attraction is low, then the ball may fall right through the floor (input waveform) when descending down on it, depending on how
+                        low the floor attraction is and on the current vertical velocity of the ball. When it falls through, the gravitational pull is reversed (note that the
+                        velocity remains the same). One should note that with a low floor attraction, the Newtonator can output sound even if the input is silence, since it keeps
+                        falling through the dc signal in a more-or-less sine wave path. Also note that  with no floor attraction, the ball will not be projected upwards when
+                        encountering any positive slope, since it will just fall through it. No big deal, just a different sound.
+Gravity Scaling -       The gravitational force can be exponentially scaled up depending on how high above the floor the ball is and how high this setting
+                        is. A high gravity scaling mixed with a high gravity will keep the output more true to the input waveform.
+Dry Mix         -       Mix in some or all of the original input signal into the output signal. However, this mixed signal still goes through the envelope follower and the final clip.
+Gravity Modulation -    (these parmeters all affect any modulation of the gravitational pull)
+(dropdown box)  -       This is the type of waveform that will modulate the gravity.
+Frequency       -       The frequency of the modulation.
+Spread          -       This setting only applies if the waveform is Random. In that case, this determines the range of frequencies that can be covered by the jspline opcode,
+                        as a factor of the modulation Frequency.
+Depth           -       The depth of modulation, as a factor of the value of the Gravity widget. Please note that a high depth will usually severely mangle the input and
+                        provide a high output amplitude. For a tamer sound, keep the depth below one. To turn off gravity modulation entirely, set the depth to zero.
+Envelope Follower -     (these settings all affect how the output follows the original input&apos;s amplitude)
+Use Envelope Follower - If selected, the output amplitude will follow the input amplitude via the follow2 opcode.
+Attack Time, Release Time - Both parameters for the follow2 opcode.
+
+TIPS:
+
+To make a low-pass filter-type effect - Set modulation depth to zero, pre-scale
+to one, floor attraction low (~&lt;=0.3), Gravity Scaling very high (1 or .999,
+etc). Adjust Gravity to affect the cut-off frequency.
+
+To make the output more true to the input - Any one of these may work; high
+gravity scaling (mixed with a high gravity), low(er) pre-scale, high floor
+attraction, low(er) gravity modulation depth (usually safe is &lt;1). In most
+cases, having a high floor attraction seems to render at least a recognizable
+signal.
+
+Help, I&apos;m just getting *clicks* - Try increasing the gravity, lowering the
+gravity modulation depth, or selecting Clip Path. Try any one or all.
+
+To prevent output from playing when input is silence - You can either increase
+floor attraction or use the Envelope Follower. Or both. But keep in mind that
+increasing the floor attraction will affect the resulting tambre, while using
+the envelope follower will just affect the amplitude.
+
+---
+
+version 1.1, 2016
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, January 2008
+- initial version by Michael Bechard</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>NONE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Newtonator_grav scale</objectName>
+          <x>345</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.30000000000000004</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>grav. scale</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Newtonator_prescale</objectName>
+          <x>70</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>2.0</maximum>
+          <value>0.26</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>prescale</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Newtonator_floor attract</objectName>
+          <x>280</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.5660269</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>floorattrct</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Newtonator_gravity</objectName>
+          <x>15</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>100.0</maximum>
+          <value>22.000000000000007</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>gravity</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>95</y>
+          <groupName>Gravity Modulation</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>215</x>
+            <y>10</y>
+            <label>type</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>Newtonator_gravity type</objectName>
+            <x>175</x>
+            <y>25</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>1</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-779525403'>
+                <name>Random</name>
+                <value>-1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779525402'>
+                <name>Sine</name>
+                <value>0</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779525401'>
+                <name>Triangle</name>
+                <value>1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779525400'>
+                <name>Sawtooth</name>
+                <value>4</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779525399'>
+                <name>Square</name>
+                <value>2</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Newtonator_gravity spread</objectName>
+            <x>65</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.07170879</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>spread</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Newtonator_gravity freq</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>5000.0</maximum>
+            <value>1216.7191400000002</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>freq.</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Newtonator_gravity depth</objectName>
+            <x>125</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>10.0</maximum>
+            <value>6.7</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>depth</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>378</x>
+          <y>102</y>
+          <label></label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Newtonator_dry</objectName>
+          <x>440</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.9400000000000001</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>false</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>mix</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>Newtonator_clip</objectName>
+          <x>185</x>
+          <y>30</y>
+          <automationAllowed>false</automationAllowed>
+          <label>Clip Path</label>
+          <selected>false</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>280</x>
+          <y>95</y>
+          <groupName>Envelope Follower</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Newtonator_follow attack</objectName>
+            <x>105</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.191</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>false</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Attack</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+            <objectName>Newtonator_follow</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>false</automationAllowed>
+            <label>Env. Follow</label>
+            <selected>true</selected>
+            <randomizable>false</randomizable>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Newtonator_follow release</objectName>
+            <x>155</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>2.0</maximum>
+            <value>0.2</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>false</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>release</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Newtonator_cliplim</objectName>
+          <x>130</x>
+          <y>15</y>
+          <automationAllowed>false</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.38000000000000006</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>false</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>clip limit</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>NewtonatorON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-779525408' name='Newtonator_gravity' label='' min='0.0' max='100.0' bdresolution='-1' automationEnabled='false' value='22.000000000000007'>
+      <line name='' version='2' max='100.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='22.000000000000007'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525406' name='Newtonator_grav scale' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.30000000000000004'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.30000000000000004'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525404' name='Newtonator_dry' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.9400000000000001'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.9400000000000001'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525397' name='Newtonator_gravity spread' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.07170879'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.07170879'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525395' name='Newtonator_gravity freq' label='' min='0.0' max='5000.0' bdresolution='-1' automationEnabled='false' value='1216.7191400000002'>
+      <line name='' version='2' max='5000.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1216.7191400000002'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525393' name='Newtonator_gravity depth' label='' min='0.0' max='10.0' bdresolution='-1' automationEnabled='false' value='6.7'>
+      <line name='' version='2' max='10.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='6.7'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525391' name='Newtonator_follow release' label='' min='0.0' max='2.0' bdresolution='-1' automationEnabled='false' value='0.2'>
+      <line name='' version='2' max='2.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.2'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525389' name='Newtonator_follow attack' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.191'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.191'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525387' name='Newtonator_floor attract' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.5660269'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5660269'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525385' name='Newtonator_prescale' label='' min='0.0' max='2.0' bdresolution='-1' automationEnabled='false' value='0.26'>
+      <line name='' version='2' max='2.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.26'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104215' name='NewtonatorON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

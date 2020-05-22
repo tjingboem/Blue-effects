@@ -1,0 +1,364 @@
+<effect>
+  <name>voc</name>
+  <enabled>false</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;VocON&gt; == 1) then
+    krev = &lt;Voc_reverse&gt;
+    ichn filenchnls &quot;&lt;Voc_file&gt;&quot;
+
+    if (ichn == 1) then
+	ar1         diskin2 &quot;&lt;Voc_file&gt;&quot;, &lt;Voc_speed&gt;, 0, i(&lt;Voc_loop&gt;)
+	ar2 = 	ar1
+    else
+	ar1, ar2    diskin2 &quot;&lt;Voc_file&gt;&quot;, &lt;Voc_speed&gt;, 0, i(&lt;Voc_loop&gt;)
+    endif
+
+    ftps1  pvsanal   ain1, &lt;Voc_size&gt;, &lt;Voc_overlap&gt;, &lt;Voc_size&gt;, 1 ; analyse it
+    ftps2  pvsanal   ain2, &lt;Voc_size&gt;, &lt;Voc_overlap&gt;, &lt;Voc_size&gt;, 1
+    ftps3  pvsanal   ar1, &lt;Voc_size&gt;, &lt;Voc_overlap&gt;, &lt;Voc_size&gt;, 1 ; analyse it
+    ftps4  pvsanal   ar2, &lt;Voc_size&gt;, &lt;Voc_overlap&gt;, &lt;Voc_size&gt;, 1
+
+    if krev == 1 kgoto setup1
+	kgoto setup2
+
+    setup1:
+    fsig1 	pvsvoc	 ftps1, ftps3, &lt;Voc_depth&gt;, &lt;Voc_gain&gt;
+    fsig2	pvsvoc	 ftps2, ftps4, &lt;Voc_depth&gt;, &lt;Voc_gain&gt;
+    goto end
+
+
+    setup2:
+    fsig1 	pvsvoc	 ftps3, ftps1, &lt;Voc_depth&gt;, &lt;Voc_gain&gt;
+    fsig2	pvsvoc	 ftps4, ftps2, &lt;Voc_depth&gt;, &lt;Voc_gain&gt;
+    goto end
+
+
+    end:
+    aouts1  pvsynth  fsig1                      ; synthesise it
+    aouts2  pvsynth  fsig2
+
+    aout1 = (ain1 * &lt;Voc_wetdry&gt;) + (aouts1 * (1 - &lt;Voc_wetdry&gt;))
+    aout2 = (ain2 * &lt;Voc_wetdry&gt;) + (aouts2 * (1 - &lt;Voc_wetdry&gt;))     
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+vocoding using Victor Lazzarini&apos;s pvsvoc. It combines the spectral envelope of one signal with the excitation (frequencies) of another.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+File Selector   -       load Sample
+loop            -       switch to loop Sample
+speed           -       pitch and speed of Sample
+swap source     -       switch between Sample or incoming signal
+overlap         -       The distance in samples (“hop size”) between overlapping analysis frames
+size            -       The FFT size in samples
+depth           -       depth of effect, affecting how much of the frequencies will be taken from the second signal
+gain            -       gain boost/attenuation applied to the output
+mix             -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2017
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2007
+- initial version by Peiman Khosravi
+See http://www.csounds.com/journal/issue7/onTheDesignOfSpectralToolsInBlue.html</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>164</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Voc_depth</objectName>
+          <x>420</x>
+          <y>100</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.99</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>Voc_size</objectName>
+          <x>130</x>
+          <y>120</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>3</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='196006826'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006827'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006828'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006829'>
+              <name>2048</name>
+              <value>2048</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006830'>
+              <name>4096</name>
+              <value>4096</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>480</x>
+          <y>125</y>
+          <label>gain</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>Voc_wetdry</objectName>
+          <x>580</x>
+          <y>100</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.6</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Voc_gain</objectName>
+          <x>420</x>
+          <y>125</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>5.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>2.8</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>Voc_reverse</objectName>
+          <x>10</x>
+          <y>100</y>
+          <automationAllowed>true</automationAllowed>
+          <label>swap sources</label>
+          <selected>true</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>Voc_overlap</objectName>
+          <x>130</x>
+          <y>100</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>1</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='196006831'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006832'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006833'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006834'>
+              <name>2048</name>
+              <value>2048</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>185</x>
+          <y>125</y>
+          <label>size</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>select stereo file</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>Voc_speed</objectName>
+            <x>10</x>
+            <y>45</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>-4.0</minimum>
+            <maximum>4.0</maximum>
+            <bdresolution>0.1</bdresolution>
+            <value>1.0</value>
+            <sliderWidth>550</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+            <objectName>Voc_loop</objectName>
+            <x>560</x>
+            <y>15</y>
+            <automationAllowed>true</automationAllowed>
+            <label>loop</label>
+            <selected>true</selected>
+            <randomizable>true</randomizable>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBFileSelector'>
+            <objectName>Voc_file</objectName>
+            <x>10</x>
+            <y>10</y>
+            <fileName></fileName>
+            <textFieldWidth>500</textFieldWidth>
+            <stringChannelEnabled>false</stringChannelEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>20</x>
+            <y>60</y>
+            <label>speed</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>600</x>
+          <y>115</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>480</x>
+          <y>100</y>
+          <label>depth</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>185</x>
+          <y>102</y>
+          <label>overlap</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>VocON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-134333780' name='Voc_reverse' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333778' name='Voc_speed' label='' min='-4.0' max='4.0' bdresolution='0.1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='4.0' min='-4.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-48895346' name='Voc_loop' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-438724905' name='Voc_depth' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.99'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.99'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-438724903' name='Voc_gain' label='' min='0.0' max='5.0' bdresolution='0.1' automationEnabled='false' value='2.8'>
+      <line name='' version='2' max='5.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.8'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-438724814' name='Voc_wetdry' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104241' name='VocON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

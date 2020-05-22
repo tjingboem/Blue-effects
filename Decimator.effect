@@ -1,0 +1,140 @@
+<effect>
+  <name>Decimator</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;DecimatorON&gt; == 1) then
+    setksmps 1
+
+    idecfct =	i(&lt;Decimator_dec factor&gt;)
+;    itb     ftgentmp	0, 0, 16384, 7, 1, 1, 1, 0, 0, 16383, 0
+    itb     ftgentmp	0, 0, 16384, 7, &lt;Decimator_wav_WaveShape&gt;
+    agate   poscil      1, sr/idecfct, itb
+
+    aout1   samphold	ain1, agate
+    aout2   samphold	ain2, agate
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>DESCRIPTION:
+
+Effectively downsamples the signal by a given factor.  
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+Decimator Factor-       amount of downsampling
+Waveshape       -       freely drawable waveshape 
+
+---
+
+version 1.01, May 2020
+- added comments on controllers
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, ?
+- initial version: unknown
+
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>20</x>
+          <y>25</y>
+          <label>Decimation Factor</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Decimator_dec factor</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>2.0</minimum>
+          <maximum>100.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>57.0</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLineObject'>
+        <objectName>Decimator_wav</objectName>
+        <x>10</x>
+        <y>65</y>
+        <canvasWidth>220</canvasWidth>
+        <canvasHeight>100</canvasHeight>
+        <xMax>16384.0</xMax>
+        <relativeXValues>true</relativeXValues>
+        <separatorType>COMMA</separatorType>
+        <leadingZero>false</leadingZero>
+        <locked>false</locked>
+        <lines>
+          <line name='WaveShape' version='2' max='1.0' min='-1.0' bdresolution='-1' color='-14623488' rightBound='true' endPointsLinked='false'>
+            <linePoint x='0.0' y='-1.0'/>
+            <linePoint x='0.25' y='0.96'/>
+            <linePoint x='0.42272727272727273' y='0.45999999999999996'/>
+            <linePoint x='0.5954545454545455' y='0.33999999999999986'/>
+            <linePoint x='1.0' y='1.0'/>
+          </line>
+        </lines>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>DecimatorON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-327896647' name='Decimator_dec factor' label='' min='2.0' max='100.0' bdresolution='1' automationEnabled='false' value='57.0'>
+      <line name='' version='2' max='100.0' min='2.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='57.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104207' name='DecimatorON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

@@ -1,0 +1,438 @@
+<effect>
+  <name>SyncedDelay</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;SynDelayON&gt; == 1) then
+    kTempo 	miditempo
+    iTempo = i(kTempo)
+    iLink = i(&lt;SynDelay_FBLink&gt;)
+    iTimeL = 60 / iTempo * i(&lt;SynDelay_leftNumerator&gt;) / i(&lt;SynDelay_leftDenominator&gt;)
+    iTimeR = 60 / iTempo * i(&lt;SynDelay_rightNumerator&gt;) / i(&lt;SynDelay_rightDenominator&gt;)
+    kFBLeft = &lt;SynDelay_FBLeft&gt; / 2
+    kFBRight = (iLink == 1) ? kFBLeft : &lt;SynDelay_FBRight&gt; /2
+    kMix	  = &lt;SynDelay_Mix&gt;
+
+    aL	init	0
+    aR	init	0
+
+    aL	delayr iTimeL
+	delayw ain1 + kFBLeft * aL + kFBLeft * aR
+    aR	delayr iTimeR
+	delayw ain2 + kFBRight * aR + kFBRight * aL
+
+    aout1 ntrpol ain1,aL, kMix
+    aout2 ntrpol ain2,aR, kMix
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>EFFECT TO BE USED WITH COMMANDLINE -t x (where x = bpm)!!
+
+
+DESCRIPTION:
+
+Tempo synced delay
+
+
+CONTROLLERS:
+
+ON/OFF              -       bypass
+Left/Right channel  -       independent left and right channel effect
+Numerator/Denominator-      set delay divisions
+mix                 -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2017
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by Lollipop
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>NONE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>SynDelayON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>Left channel</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>54</x>
+            <y>2</y>
+            <label>time</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>SynDelay_leftNumerator</objectName>
+            <x>10</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <selectedIndex>4</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-779526850'>
+                <name>1</name>
+                <value>1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526849'>
+                <name>2</name>
+                <value>2</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526848'>
+                <name>3</name>
+                <value>3</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526847'>
+                <name>4</name>
+                <value>4</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526846'>
+                <name>5</name>
+                <value>5</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526845'>
+                <name>6</name>
+                <value>6</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526844'>
+                <name>7</name>
+                <value>7</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>SynDelay_FBLeft</objectName>
+            <x>15</x>
+            <y>50</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.6</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+            <label>feedback</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>62</x>
+            <y>28</y>
+            <label>/</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>SynDelay_leftDenominator</objectName>
+            <x>70</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <selectedIndex>4</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-779526843'>
+                <name>1</name>
+                <value>1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526842'>
+                <name>2</name>
+                <value>2</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526841'>
+                <name>4</name>
+                <value>4</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526840'>
+                <name>8</name>
+                <value>8</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526839'>
+                <name>16</name>
+                <value>16</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>65</x>
+            <y>19</y>
+            <label>/</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>SynDelay_Mix</objectName>
+          <x>40</x>
+          <y>140</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.5</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>140</x>
+          <y>10</y>
+          <groupName>Right channel</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>62</x>
+            <y>28</y>
+            <label>/</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>65</x>
+            <y>19</y>
+            <label>/</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+            <objectName>SynDelay_FBLink</objectName>
+            <x>75</x>
+            <y>85</y>
+            <automationAllowed>true</automationAllowed>
+            <label>link</label>
+            <selected>true</selected>
+            <randomizable>true</randomizable>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>54</x>
+            <y>2</y>
+            <label>time</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>SynDelay_rightNumerator</objectName>
+            <x>10</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <selectedIndex>2</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-779526832'>
+                <name>1</name>
+                <value>1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526831'>
+                <name>2</name>
+                <value>2</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526830'>
+                <name>3</name>
+                <value>3</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526829'>
+                <name>4</name>
+                <value>4</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526828'>
+                <name>5</name>
+                <value>5</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526827'>
+                <name>6</name>
+                <value>6</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526826'>
+                <name>7</name>
+                <value>7</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>SynDelay_FBRight</objectName>
+            <x>15</x>
+            <y>50</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.6</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>false</valueDisplayEnabled>
+            <label>feedback</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>SynDelay_rightDenominator</objectName>
+            <x>70</x>
+            <y>20</y>
+            <automationAllowed>true</automationAllowed>
+            <selectedIndex>3</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-779526825'>
+                <name>1</name>
+                <value>1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526824'>
+                <name>2</name>
+                <value>2</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526823'>
+                <name>4</name>
+                <value>4</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526822'>
+                <name>8</name>
+                <value>8</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-779526821'>
+                <name>16</name>
+                <value>16</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>130</x>
+          <y>140</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-779526837' name='SynDelay_leftNumerator' label='' min='0.0' max='6.0' bdresolution='1' automationEnabled='false' value='4.0'>
+      <line name='' version='2' max='6.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='4.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779526835' name='SynDelay_leftDenominator' label='' min='0.0' max='4.0' bdresolution='1' automationEnabled='false' value='4.0'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='4.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779526833' name='SynDelay_FBLeft' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779526819' name='SynDelay_rightDenominator' label='' min='0.0' max='4.0' bdresolution='1' automationEnabled='false' value='3.0'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='3.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779526817' name='SynDelay_rightNumerator' label='' min='0.0' max='6.0' bdresolution='1' automationEnabled='false' value='2.0'>
+      <line name='' version='2' max='6.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779526815' name='SynDelay_FBRight' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779526813' name='SynDelay_Mix' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.5'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-779525921' name='SynDelay_FBLink' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104161' name='SynDelayON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

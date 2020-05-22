@@ -1,0 +1,207 @@
+<effect>
+  <name>Compressor</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;CompressorON&gt; == 1) then
+    kthresh	=	&lt;Compressor_threshold&gt;
+    icomp1	=	i(&lt;Compressor_comp upper zone&gt;)
+    icomp2	=	i(&lt;Compressor_comp lower zone&gt;)
+    irtime	=	i(&lt;Compressor_rise time&gt;)
+    iftime	=	i(&lt;Compressor_fall time&gt;)
+
+    aout1	dam	ain1, kthresh, icomp1, icomp2, irtime, iftime
+    aout2	dam	ain2, kthresh, icomp1, icomp2, irtime, iftime
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>Compressor using the dam opcode. Add both slider bars together to get final threshold value.
+
+CONTROLLERS
+ON/OFF          -       bypass
+upper/lower     -       compression ratio for upper and lower zone
+treshold        -       level of input signal which acts as the threshold
+attack/release  -       gain rise time and fall time in seconds. Time over which the gain factor is allowed to raise of one unit.
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2017
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by mbechard
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>NONE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>35</x>
+          <y>140</y>
+          <label>threshold</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Compressor_rise time</objectName>
+          <x>140</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.01</minimum>
+          <maximum>1.0</maximum>
+          <value>0.11817251829999999</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>attack</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Compressor_comp lower zone</objectName>
+          <x>80</x>
+          <y>35</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.6850934</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>lower</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>Compressor_threshold</objectName>
+          <x>40</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.58</value>
+          <sliderHeight>100</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Compressor_comp upper zone</objectName>
+          <x>10</x>
+          <y>35</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.6850934</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>upper</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Compressor_fall time</objectName>
+          <x>135</x>
+          <y>85</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.107790254</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>release</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>CompressorON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-322913653' name='Compressor_fall time' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.107790254'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.107790254'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-322913651' name='Compressor_comp lower zone' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.6850934'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6850934'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-322913649' name='Compressor_threshold' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.58'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.58'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-322913647' name='Compressor_rise time' label='' min='0.01' max='1.0' bdresolution='-1' automationEnabled='false' value='0.11817251829999999'>
+      <line name='' version='2' max='1.0' min='0.01' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.11817251829999999'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1057210357' name='Compressor_comp upper zone' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.6850934'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6850934'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104147' name='CompressorON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

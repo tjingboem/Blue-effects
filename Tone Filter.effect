@@ -1,0 +1,225 @@
+<effect>
+  <name>Tone Filter</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if &lt;ToneFilterON&gt; == 1 then
+ilp	=	i(&lt;Tone Filter_Filter Mode&gt;)
+istack	=	i(&lt;Tone Filter_stack&gt;)
+kcofreq	=	&lt;Tone Filter_cofA&gt; + &lt;Tone Filter_cofB&gt;
+
+cggoto (ilp == 1), doLP
+cggoto (istack &gt; 1), doHPStack
+
+aout1	atone	ain1, kcofreq
+aout2	atone	ain2, kcofreq
+goto end
+
+doHPStack:
+
+aout1	atonex	ain1, kcofreq, istack
+aout2	atonex	ain2, kcofreq, istack
+goto end
+
+doLP:
+cggoto (istack &gt; 1), doLPStack
+
+aout1	tone	ain1, kcofreq
+aout2	tone	ain2, kcofreq
+goto end
+
+doLPStack:
+
+aout1	tonex	ain1, kcofreq, istack
+aout2	tonex	ain2, kcofreq, istack
+goto end
+
+end:
+
+else
+    aout1    =   ain1
+    aout2    =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+High or lowpass filter with tone or atone, optionally stacked using the opcodes tonex or atonex.
+
+
+CONTROLLERS:
+
+ON/OFF                  -       bypass
+Dropdown List           -       highpass or lowpass filter
+# in stack              -       # of filters in series
+frequency fine/coarse   -       set fine and coarse cutoff frequency
+
+---
+
+version 1.11, May 20202
+- added comments on controllers
+- repaired Highpass filter
+
+version 1.1, 2016
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008
+- initial version by Michael Bechard
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>ToneFilterON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Tone Filter</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x1a1a1aff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Tone Filter_cofA</objectName>
+          <x>10</x>
+          <y>50</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1000.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>790.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>Tone Filter_Filter Mode</objectName>
+          <x>10</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <selectedIndex>1</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='405407020'>
+              <name>Highpass</name>
+              <value>1</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='405407021'>
+              <name>Lowpass</name>
+              <value>2</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Tone Filter_cofB</objectName>
+          <x>10</x>
+          <y>80</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>20000.0</maximum>
+          <bdresolution>1E+3</bdresolution>
+          <value>8000.0</value>
+          <sliderWidth>200</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>70</x>
+          <y>45</y>
+          <label>frequency fine</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>60</x>
+          <y>75</y>
+          <label>frequency coarse</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>125</x>
+          <y>10</y>
+          <label># In stack</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Tone Filter_stack</objectName>
+          <x>100</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>1.0</minimum>
+          <maximum>10.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>2.0</value>
+          <sliderWidth>110</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='1506901406' name='Tone Filter_stack' label='' min='1.0' max='10.0' bdresolution='1' automationEnabled='false' value='2.0'>
+      <line name='' version='2' max='10.0' min='1.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-865599504' name='Tone Filter_cofA' label='' min='0.0' max='1000.0' bdresolution='1' automationEnabled='false' value='790.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='790.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-865599502' name='Tone Filter_cofB' label='' min='0.0' max='20000.0' bdresolution='1E+3' automationEnabled='false' value='8000.0'>
+      <line name='' version='2' max='20000.0' min='0.0' bdresolution='1E+3' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='8000.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104187' name='ToneFilterON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='405406865' name='Tone Filter_Filter Mode' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

@@ -1,0 +1,195 @@
+<effect>
+  <name>SnipLooper</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;SnipLooperON&gt; == 1) then
+
+    setksmps	1
+
+    kwait	init	0
+    kwaitfor    init	0
+    khavewaited init 0
+
+    kbpm	miditempo                                                       ; setup from tempo
+    kbeatlen =	60/ kbpm
+
+    kdel	=	kbeatlen * &lt;SnipLooper_beatFraction&gt;                    ; delay setup
+    imaxdel	=	4
+    ;kon	=	(&lt;beatFraction&gt; &lt; .1) ? 0 : 1
+    kon	=	1
+	cggoto (&lt;SnipLooper_beatFraction&gt; &gt; 0), kondone
+    kon	=	0
+    kondone:
+
+    khavewaited =	(kon == 0) ? 0 : khavewaited
+
+    know	timek                                                           ; what time is it?
+
+	cggoto (kwait == 1 &amp;&amp; know &gt; kwaitfor), stopwait                        ; handle waits
+	goto endstopwait
+    stopwait:
+    kwait	=	0
+    khavewaited = 	1
+    endstopwait:
+
+	cggoto (kon == 1 &amp;&amp; kwait == 0 &amp;&amp; khavewaited == 0), startwait
+	goto endstartwait
+    startwait:
+    kwait	=	1
+    kwaitfor timek
+    kwaitfor =	kwaitfor + (kdel*kr)
+
+    endstartwait:
+
+	cggoto (kon == 0), enddelay                                             ; should we drop reading/writing delay?
+
+    adump	delayr	imaxdel
+    adelay1	deltapi	kdel
+	delayw	((1-kwait) * adelay1) + ((kwait) * ain1)
+
+    adelay2	=	ain2
+    adump	delayr	imaxdel
+    adelay2	deltapi	kdel
+	delayw	((1-kwait) * adelay2) + ((kwait) * ain2)
+
+    enddelay:
+
+	cggoto (kon == 1 &amp;&amp; kwait== 0), delout                                  ; should we play the dry or the delayed audio?
+    dryout:
+    aout1	=	ain1
+    aout2	=	ain2
+	goto	done
+
+    delout:
+    aout1	=	adelay1
+    aout2	=	adelay2
+	goto	done
+    done:
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>EFFECT TO BE USED WITH COMMANDLINE -t x (where x = bpm)!!
+
+
+DESCRIPTION:
+
+Loops part of audio stream on demand. Should be used with automation.
+If the value of &quot;Beat Fraction&quot; is 0, nothing is looped. If set to anything else, that fraction is repeated.
+
+Example.
+
+Assuming the following automation graph for &quot;Beat Fraction&quot;
+
+                              |       |       |       |----| &lt;- Beat Fraction = .25
+Beat Fraction = 0 -&gt;|----|----|----|       |
+
+This will play the stream unmodified for 3 beats. Then on beat 4 the first
+1/16 (since a 1/16 is 25% the length of a beat (1/4)) of that beat is
+repeated four times untill beat 5
+
+addendum by Menno Knevel:
+the way i found to get this effect working, apart from setting the commanline to -t 60 for example, was how to get the repetitions to start.
+With Automation Line i found that, when the Object was rendering, the Beat Fraction must abruptly go from 0 to a higher position, then an even higher position if you want to continue to change it.
+                        /\          /|
+                       /  \________/ |
+AL at start Object: ___|             \_____  etc.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+Beat Fraction   -       Loops parts of audio stream
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, May 2020
+- new GUI and small code adaptations by Menno Knevel
+- Runs at krate
+
+version 1.0, 2008
+- Initial release by Atte André Jensen
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>10</width>
+      <height>5</height>
+      <gridStyle>NONE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>SnipLooperON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>SnipLooper_beatFraction</objectName>
+          <x>10</x>
+          <y>15</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.33</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>50</x>
+          <y>10</y>
+          <label>Beat Fraction</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-779527569' name='SnipLooper_beatFraction' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.33'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.33'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104157' name='SnipLooperON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

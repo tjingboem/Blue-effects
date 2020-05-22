@@ -1,0 +1,413 @@
+<effect>
+  <name>Granularize</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;GranularizeON&gt; == 1) then
+    setksmps	1
+    itblsz	=	131072
+    itbfrq	=	sr / itblsz
+
+    ifnA1	ftgentmp	0, 0, itblsz, -7, 0, itblsz, 0                  ; generate tables
+    ifnA2	ftgentmp	0, 0, itblsz, -7, 0, itblsz, 0
+    idclip	ftgentmp	0, 0, itblsz, 7, 0, 36, 1, itblsz-72, 1, 36, 0
+    iwfn	ftgentmp	0, 0, 4096, 20, 5
+
+    awp  phasor itbfrq                                                          ; write signal to tables
+    awin tablei awp, idclip, 1
+         tablew ain1*awin, awp, ifnA1, 1
+         tablew ain2*awin, awp, ifnA2, 1
+
+    ipitch	=	itbfrq * i(&lt;Granularize_freq Mult&gt;)                                  ; set grain3 parameters
+    kphs	=	0
+    kfmd	=	&lt;Granularize_FM fine&gt; + &lt;Granularize_FM coarse&gt;
+    kpmd	=	&lt;Granularize_phase&gt;
+    kgdur       =	&lt;Granularize_duration&gt;
+    kdens       =	&lt;Granularize_density fine&gt; + &lt;Granularize_density coarse&gt;
+;    kmaxovr	=	kdens*kgdur
+;    kmaxovr	=	(&lt;densA&gt; + &lt;densB&gt;) * &lt;gdur&gt; + 1
+    imaxovr     =       1000
+    kfrpow	=	&lt;Granularize_FM distribution&gt;
+    kprpow	=	&lt;Granularize_phase distribution&gt;
+    iseed	=	0
+    imode	=	0
+    kfn1	=	ifnA1
+    kfn2	=	ifnA2
+
+    agrain1	grain3	ipitch, kphs, kfmd, kpmd, kgdur, kdens, imaxovr, kfn1, iwfn, kfrpow, kprpow, iseed, imode       ; granularize both channels
+    agrain2	grain3	ipitch, kphs, kfmd, kpmd, kgdur, kdens, imaxovr, kfn2, iwfn, kfrpow, kprpow, iseed-1, imode
+    ablk1	dcblock	agrain1
+    ablk2	dcblock	agrain2
+
+    cigoto	(imaxovr &gt; 1), bal                                              ; balance signals
+    iscal	=	1
+    goto end
+
+    bal:
+    iscal	=	sqrt(imaxovr) * .666666
+
+    end:
+    aout1	=	ablk1/iscal
+    aout2	=	ablk2/iscal
+    aout1 = (ain1 * &lt;Granularize_wetdry&gt;) + (aout1 * 4 * (1 - &lt;Granularize_wetdry&gt;))
+    aout2 = (ain2 * &lt;Granularize_wetdry&gt;) + (aout2 * 4 * (1 - &lt;Granularize_wetdry&gt;))
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif
+</code>
+  <comments>
+DESCRIPTION:
+
+Granularize a signal using the grain3 opcode. It generates granular synthesis textures with more user control.
+
+
+CONTROLLERS:
+
+ON/OFF                      -       bypass
+duration                    -       grain duration in seconds
+density fine/coarse         -       fine and coarse number of grains per second
+pitch multiplier            -       multiplies the grain frequency in Hz
+pitch dist.                 -       controls the distribution of grain frequency variation
+freq. variation fine/coarse -       fine and coarse random variation (bipolar) in grain frequency in Hz
+phase random                -       random variation (bipolar) in start phase
+phase distribution          -       controls the distribution of grain frequency variation
+mix                         -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2018
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by mbechard
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>NONE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>GranularizeON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>275</x>
+          <y>10</y>
+          <groupName>pitch</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Granularize_freq Mult</objectName>
+            <x>10</x>
+            <y>0</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>4.0</maximum>
+            <value>1.0005438</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>muliplier</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Granularize_FM distribution</objectName>
+            <x>65</x>
+            <y>0</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>-2.0</minimum>
+            <maximum>2.0</maximum>
+            <value>-0.3909154</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>false</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>distribution</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Granularize_duration</objectName>
+          <x>19</x>
+          <y>16</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.005</minimum>
+          <maximum>2.0</maximum>
+          <value>0.15581608482499998</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>duration</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>660</x>
+          <y>10</y>
+          <groupName>phase</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Granularize_phase</objectName>
+            <x>10</x>
+            <y>0</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.1048207</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>random</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Granularize_phase distribution</objectName>
+            <x>65</x>
+            <y>0</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>-2.0</minimum>
+            <maximum>2.0</maximum>
+            <value>-2.0</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>distribution</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>89</x>
+          <y>46</y>
+          <label>Num. of grains p/s</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Granularize_density coarse</objectName>
+          <x>70</x>
+          <y>55</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>2000.0</maximum>
+          <bdresolution>1E+2</bdresolution>
+          <value>500.0</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>Granularize_wetdry</objectName>
+          <x>805</x>
+          <y>35</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.5</value>
+          <sliderHeight>70</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>420</x>
+          <y>10</y>
+          <groupName>frequency variation</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>Granularize_FM fine</objectName>
+            <x>15</x>
+            <y>0</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.03121192</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>fine</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>105</x>
+            <y>25</y>
+            <label>coarse</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>Granularize_FM coarse</objectName>
+            <x>60</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>2000.0</maximum>
+            <bdresolution>1</bdresolution>
+            <value>0.0</value>
+            <sliderWidth>120</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>Granularize_density fine</objectName>
+          <x>70</x>
+          <y>25</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>100.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>30.0</value>
+          <sliderWidth>150</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>810</x>
+          <y>20</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-316918042' name='Granularize_phase' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.1048207'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.1048207'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918040' name='Granularize_phase distribution' label='' min='-2.0' max='2.0' bdresolution='-1' automationEnabled='false' value='-2.0'>
+      <line name='' version='2' max='2.0' min='-2.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='-2.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918038' name='Granularize_duration' label='' min='0.005' max='2.0' bdresolution='-1' automationEnabled='false' value='0.15581608482499998'>
+      <line name='' version='2' max='2.0' min='0.005' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.15581608482499998'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918034' name='Granularize_density fine' label='' min='0.0' max='100.0' bdresolution='1' automationEnabled='false' value='30.0'>
+      <line name='' version='2' max='100.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='30.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918032' name='Granularize_FM fine' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.03121192'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.03121192'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918030' name='Granularize_FM coarse' label='' min='0.0' max='2000.0' bdresolution='1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='2000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918028' name='Granularize_wetdry' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.5'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918026' name='Granularize_freq Mult' label='' min='0.0' max='4.0' bdresolution='-1' automationEnabled='false' value='1.0005438'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0005438'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918024' name='Granularize_FM distribution' label='' min='-2.0' max='2.0' bdresolution='-1' automationEnabled='false' value='-0.3909154'>
+      <line name='' version='2' max='2.0' min='-2.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='-0.3909154'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918022' name='Granularize_density coarse' label='' min='0.0' max='2000.0' bdresolution='1E+2' automationEnabled='false' value='500.0'>
+      <line name='' version='2' max='2000.0' min='0.0' bdresolution='1E+2' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='500.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104219' name='GranularizeON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

@@ -1,0 +1,224 @@
+<effect>
+  <name>Leslie Emulation</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;LeslieON&gt; == 1) then
+    ain = ain1 + ain2                                                           ; make mono
+
+    awetL, awetR 	leslieEmulation	ain, &lt;Leslie_SPEED&gt;
+    aout1 = (ain1 * &lt;Leslie_dry&gt;) + (awetL * (1 - &lt;Leslie_dry&gt;))
+    aout2 = (ain2 * &lt;Leslie_dry&gt;) + (awetR * (1 - &lt;Leslie_dry&gt;))
+;    ain1 *=  &lt;dry&gt;                                                              ;dry signal
+;    ain2 *=  &lt;dry&gt; 
+;
+;    aout1    =   ain1 + awetL                                                   ;dry and wet to output
+;    aout2    =   ain2 + awetR                                                   ;dry signal
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif
+</code>
+  <comments>
+DESCRIPTION:
+
+Based on Hans Mikelson&apos;s Leslie Emulation
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+speed           -       speed of leslie modulation wheel
+mix             -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2015
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2010
+- initial version by Steven Yi
+</comments>
+  <opcodeList>
+    <udo>
+      <opcodeName>leslieEmulation</opcodeName>
+      <outTypes>aa</outTypes>
+      <inTypes>ak</inTypes>
+      <codeBody>asig, kspeed xin
+
+isine 		chnget &quot;leslie_sine&quot;
+ifilter1 	chnget &quot;leslie_filter1&quot;
+ifilter2 	chnget &quot;leslie_filter2&quot;
+idistort	chnget &quot;leslie_distort&quot;
+
+if (isine == 0) then
+	isine 		ftgentmp 	0, 0, 1024, 10, 1
+	ifilter1 	ftgentmp 	0, 0, 256, 7, 0, 110, .3, 18, 1, 18, .3, 110, 0
+	ifilter2 	ftgentmp 	0, 0, 256, 7, 0, 80, .5, 16, 1, 64, 1, 16, .5, 80, 0
+	idistort 	ftgentmp 	0, 0, 1024, 8, -.8, 42, -.78, 100, -.7, 740, .7, 100, .78, 42, .8
+
+	chnset	isine, &quot;leslie_sine&quot;
+	chnset	ifilter1, &quot;leslie_filter1&quot;
+	chnset	ifilter2, &quot;leslie_filter2&quot;
+	chnset	idistort, &quot;leslie_distort&quot;
+endif
+
+
+isep      =         .2
+
+; DISTORTION EFFECT
+asig      =         asig/40000
+aclip     tablei    asig, idistort, 1, .5
+aclip     =         aclip*30000
+
+aleslie   delayr    .02, 1
+
+; ACCELERATION
+kenv      linseg    p4, p3+.02, p5
+
+; DOPPLER EFFECT
+koscl     oscil     1, kspeed, isine, 0
+koscr     oscil     1, kspeed, isine, isep
+kdopl     =         .01-koscl*.0002
+kdopr     =         .012-koscr*.0002
+aleft     deltapi   kdopl
+aright    deltapi   kdopr
+
+delayw    aclip
+
+; FILTER EFFECT
+; DIVIDE INTO THREE FREQUENCY RANGES FOR DIRECTIONAL SOUND. 
+
+; HIGH PASS
+alfhi     atone     aleft, 8000
+arfhi     atone     aright, 8000
+alfhi     tone      alfhi, 12000
+arfhi     tone      arfhi, 12000
+
+; BAND PASS
+alfmid    atone     aleft, 4000
+arfmid    atone     aright, 4000
+alfmid    tone      alfmid, 8000
+arfmid    tone      arfmid, 8000
+
+; LOW PASS
+alflow    tone      aleft, 4000
+arflow    tone      aright, 4000
+
+kflohi    oscil     1, kspeed, ifilter1, 0
+kfrohi    oscil     1, kspeed, ifilter1, isep
+kflomid   oscil     1, kspeed, ifilter2, 0
+kfromid   oscil     1, kspeed, ifilter2, isep
+
+; AMPLITUDE EFFECT
+kalosc    =         koscl * .1 + 1
+karosc    =         koscr * .1 + 1
+
+
+          xout      alfhi*kflohi+alfmid*kflomid+alflow*kalosc,arfhi*kfrohi+arfmid*kfromid+arflow*karosc</codeBody>
+      <comments></comments>
+    </udo>
+  </opcodeList>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>LeslieON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>70</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>Leslie_dry</objectName>
+          <x>60</x>
+          <y>25</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.5</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>1.04</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>Leslie_SPEED</objectName>
+          <x>15</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>20.0</maximum>
+          <value>4.19996</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>speed</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>65</x>
+          <y>10</y>
+          <label>dry</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='172822903' name='Leslie_SPEED' label='' min='0.0' max='20.0' bdresolution='-1' automationEnabled='false' value='4.19996'>
+      <line name='' version='2' max='20.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='4.19996'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-604080746' name='Leslie_dry' label='' min='0.0' max='1.5' bdresolution='0.01' automationEnabled='false' value='1.04'>
+      <line name='' version='2' max='1.5' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.04'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104227' name='LeslieON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

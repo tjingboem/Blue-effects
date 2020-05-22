@@ -1,0 +1,305 @@
+<effect>
+  <name>RMLight</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;RMlightON&gt; == 1) then
+itable3 chnget &quot;table_sine&quot;
+if (itable3 == 0) then
+	itable3	ftgen 0, 0, 16384, -10, 1
+	chnset	itable3, &quot;table_sine&quot;
+endif
+
+
+itablecreate chnget &quot;table_create&quot;
+if (itablecreate == 0) then
+	itablecreate	ftgen 0, 0, 16384, -7, &lt;RMlight_table_shape&gt;
+	chnset	itablecreate, &quot;table_create&quot;
+endif
+
+
+amod1 oscili &lt;RMlight_modulation depth&gt;, &lt;RMlight_modulation frequency&gt;, &lt;RMlight_tablenum&gt;, i(&lt;RMlight_phase left&gt;)
+amod2 oscili &lt;RMlight_modulation depth&gt;, &lt;RMlight_modulation frequency&gt;, &lt;RMlight_tablenum&gt;, i(&lt;RMlight_phase right&gt;)
+
+ain1pre = ain1
+ain2pre = ain2
+
+ain1pre = ain1 * &lt;RMlight_direct signal&gt;
+ain2pre = ain2 * &lt;RMlight_direct signal&gt;
+
+aout1 = ain1pre + ain1*amod1
+aout2 = ain2pre + ain2*amod2
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>DESCRIPTION:
+
+ring modulation with drawable waveform.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+depth           -       depth of RM
+frequency       -       speed of LFO
+left/right      -       phase of LFO as to get a wide stereo image
+Dropdown List   -       sine shaped waveform (preset) or freely drawable waveform
+Line Object     -       freely drawable waveform as modulator
+direct          -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2016
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version (possibly by mbechard?)
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>RMlightON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>RMlight_phase right</objectName>
+          <x>190</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.23025</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>right</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>RMlight_direct signal</objectName>
+          <x>245</x>
+          <y>25</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>1.0</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>240</x>
+          <y>10</y>
+          <label>direct</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>RMlight_modulation depth</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.8</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>depth</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>RMlight_phase left</objectName>
+          <x>130</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>left</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>RMlight_modulation frequency</objectName>
+          <x>60</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>400.0</maximum>
+          <value>4.15186</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>frequency</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>5</x>
+          <y>85</y>
+          <groupName>Group</groupName>
+          <backgroundColor>0x00000033</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLineObject'>
+            <objectName>RMlight_table</objectName>
+            <x>10</x>
+            <y>35</y>
+            <canvasWidth>250</canvasWidth>
+            <canvasHeight>100</canvasHeight>
+            <xMax>16384.0</xMax>
+            <relativeXValues>true</relativeXValues>
+            <separatorType>COMMA</separatorType>
+            <leadingZero>false</leadingZero>
+            <locked>false</locked>
+            <lines>
+              <line name='shape' version='2' max='1.0' min='0.0' bdresolution='-1' color='-14623488' rightBound='true' endPointsLinked='false'>
+                <linePoint x='0.0' y='0.0'/>
+                <linePoint x='0.17783505' y='0.1081081'/>
+                <linePoint x='0.29381442' y='0.4189189'/>
+                <linePoint x='0.41752577' y='1.0'/>
+                <linePoint x='0.46134022' y='0.0'/>
+                <linePoint x='1.0' y='0.0'/>
+              </line>
+            </lines>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>140</x>
+            <y>15</y>
+            <label>BPF for Draw mode</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>RMlight_tablenum</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>1</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='209937713'>
+                <name>draw</name>
+                <value>itablecreate</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='209937714'>
+                <name>sine</name>
+                <value>itable3</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>67</x>
+            <y>14</y>
+            <label>mode</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='209937716' name='RMlight_phase left' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='209937720' name='RMlight_modulation frequency' label='' min='0.0' max='400.0' bdresolution='-1' automationEnabled='false' value='4.15186'>
+      <line name='' version='2' max='400.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='4.15186'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='209937722' name='RMlight_phase right' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.23025'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.23025'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-914081657' name='RMlight_modulation depth' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.8'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.8'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-914081517' name='RMlight_direct signal' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104217' name='RMlightON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

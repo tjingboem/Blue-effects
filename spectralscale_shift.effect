@@ -1,0 +1,285 @@
+<effect>
+  <name>spectralscale_shift</name>
+  <enabled>false</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;spectralscaleON&gt; == 1) then
+    ftps1  pvsanal   ain1, &lt;spectralscale_size&gt;, &lt;spectralscale_overlap&gt;, &lt;spectralscale_size&gt;, 1 ; analyse it
+    ftps2  pvsanal   ain2, &lt;spectralscale_size&gt;, &lt;spectralscale_overlap&gt;, &lt;spectralscale_size&gt;, 1
+
+    fscale1  pvscale   ftps1, &lt;spectralscale_scal&gt;, &lt;spectralscale_form&gt;        ; transpose it keeping formants
+    fscale2  pvscale   ftps2, &lt;spectralscale_scal&gt;, &lt;spectralscale_form&gt;
+
+    fshift1 pvshift fscale1, &lt;spectralscale_shift&gt;, &lt;spectralscale_lowest&gt;, &lt;spectralscale_form&gt;
+    fshift2 pvshift fscale2, &lt;spectralscale_shift&gt;, &lt;spectralscale_lowest&gt;, &lt;spectralscale_form&gt;
+
+    aouts1  pvsynth  fshift1                      ; synthesise it
+    aouts2  pvsynth  fshift2      
+
+    aout1 = (ain1 * &lt;spectralscale_wetdry&gt;) + (aouts1 * (1 - &lt;spectralscale_wetdry&gt;))
+    aout2 = (ain2 * &lt;spectralscale_wetdry&gt;) + (aouts2 * (1 - &lt;spectralscale_wetdry&gt;))                   
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+pitch scale and spectral shifting using  Victor Lazzarini&apos;s pvshift and pvscale, that shifts and scales  the frequency components of a signal, 
+stretching/compressing its spectrum.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+scale           -       scaling ratio
+shift           -       shift amount (in Hz, positive or negative)
+lowest shift    -       lowest frequency to be shifted
+overlap         -       The distance in samples (“hop size”) between overlapping analysis frames
+size            -       The FFT size in samples
+keep formants   -       attempt to keep input signal formants
+mix             -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2018
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2007
+- initial version by Peiman Khosravi
+See http://www.csounds.com/journal/issue7/onTheDesignOfSpectralToolsInBlue.html
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>2</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>spectralscaleON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>spectralscale_form</objectName>
+          <x>184</x>
+          <y>65</y>
+          <automationAllowed>true</automationAllowed>
+          <label>keep formants</label>
+          <selected>false</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>246</x>
+          <y>37</y>
+          <label>size</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>244</x>
+          <y>14</y>
+          <label>overlap</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>spectralscale_shift</objectName>
+          <x>65</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>-1000.0</minimum>
+          <maximum>1000.0</maximum>
+          <value>101.03027</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>shift</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>spectralscale_wetdry</objectName>
+          <x>290</x>
+          <y>35</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.56</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>spectralscale_overlap</objectName>
+          <x>186</x>
+          <y>11</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>0</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='196006779'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006780'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006781'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>spectralscale_size</objectName>
+          <x>186</x>
+          <y>35</y>
+          <automationAllowed>false</automationAllowed>
+          <selectedIndex>2</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='196006782'>
+              <name>256</name>
+              <value>256</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006783'>
+              <name>512</name>
+              <value>512</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006784'>
+              <name>1024</name>
+              <value>1024</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='196006785'>
+              <name>2048</name>
+              <value>2048</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>294</x>
+          <y>20</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>spectralscale_scal</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.1</minimum>
+          <maximum>4.0</maximum>
+          <value>1.6061682999999998</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>scale</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>spectralscale_lowest</objectName>
+          <x>105</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>200.0</maximum>
+          <value>0.0</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>lowest shift</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-134333885' name='spectralscale_scal' label='' min='0.1' max='4.0' bdresolution='-1' automationEnabled='false' value='1.6061682999999998'>
+      <line name='' version='2' max='4.0' min='0.1' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.6061682999999998'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-134333883' name='spectralscale_shift' label='' min='-1000.0' max='1000.0' bdresolution='-1' automationEnabled='false' value='101.03027'>
+      <line name='' version='2' max='1000.0' min='-1000.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='101.03027'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1965729648' name='spectralscale_form' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-595814216' name='spectralscale_lowest' label='' min='0.0' max='200.0' bdresolution='-1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='200.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-595813218' name='spectralscale_wetdry' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.56'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.56'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104255' name='spectralscaleON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

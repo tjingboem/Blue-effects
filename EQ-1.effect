@@ -1,0 +1,332 @@
+<effect>
+  <name>EQ-1</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;EQ1ON&gt; == 1) then
+    aout1	rbjeq ain1, &lt;LowFreq&gt;, &lt;LowLevel&gt;, 0, &lt;LowSteepness&gt;, 10
+    aout1	rbjeq aout1, &lt;MidFreq&gt;, &lt;MidLevel&gt;, &lt;MidQ&gt;, 1, 8
+    aout1	rbjeq aout1, &lt;HighFreq&gt;, &lt;HighLevel&gt;, 0, &lt;HighSteepness&gt;, 12
+    aout2	rbjeq ain2, &lt;LowFreq&gt;, &lt;LowLevel&gt;, 0, &lt;LowSteepness&gt;, 10
+    aout2	rbjeq aout2, &lt;MidFreq&gt;, &lt;MidLevel&gt;, &lt;MidQ&gt;, 1, 8
+    aout2	rbjeq aout2, &lt;HighFreq&gt;, &lt;HighLevel&gt;, 0, &lt;HighSteepness&gt;, 12
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+A basic three band equalizer based on rbjeq opcodes, the interface is pretty self explanatory. 
+You might want to change the ranges of frequency knobs to better suit your needs.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+frequency       -       cutoff, corner, or center frequency, depending on filter type, in Hz
+level           -       level (amount of boost or cut), as amplitude gain
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, 2019
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by bucket_brigade</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>EQ1ON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>156</width>
+        <height>280</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>5</x>
+          <y>110</y>
+          <groupName>Peaking</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x1a4d4dff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>144</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>MidFreq</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>200.0</minimum>
+            <maximum>5000.0</maximum>
+            <value>2160.12</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>label</label>
+            <labelEnabled>false</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>MidLevel</objectName>
+            <x>55</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>2.0E-4</minimum>
+            <maximum>5.0</maximum>
+            <value>1.02312</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>label</label>
+            <labelEnabled>false</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>MidQ</objectName>
+            <x>100</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.08</minimum>
+            <maximum>2.0</maximum>
+            <value>0.5583486348634863</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>label</label>
+            <labelEnabled>false</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>5</x>
+          <y>5</y>
+          <groupName>Lowshelf</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x1a4d4dff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>LowFreq</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>2.0E-4</minimum>
+            <maximum>300.0</maximum>
+            <value>53.3688</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>freq.</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>LowSteepness</objectName>
+            <x>100</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>2.0E-4</minimum>
+            <maximum>5.0</maximum>
+            <value>2.0E-4</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>steep.</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>LowLevel</objectName>
+            <x>55</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>2.0E-4</minimum>
+            <maximum>5.0</maximum>
+            <value>1.06552</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>level</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>5</x>
+          <y>200</y>
+          <groupName>Highshelf</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x1a4d4dff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>144</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>HighSteepness</objectName>
+            <x>100</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>2.0E-4</minimum>
+            <maximum>5.0</maximum>
+            <value>1.06359</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>label</label>
+            <labelEnabled>false</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>HighLevel</objectName>
+            <x>55</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>2.0E-4</minimum>
+            <maximum>5.0</maximum>
+            <value>1.02827</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>label</label>
+            <labelEnabled>false</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>HighFreq</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>5000.0</minimum>
+            <maximum>10000.0</maximum>
+            <value>6269.56</value>
+            <knobWidth>35</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>label</label>
+            <labelEnabled>false</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='1166711289' name='MidFreq' label='' min='200.0' max='5000.0' bdresolution='-1' automationEnabled='false' value='2160.12'>
+      <line name='' version='2' max='5000.0' min='200.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2160.12'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711291' name='MidLevel' label='' min='2.0E-4' max='5.0' bdresolution='-1' automationEnabled='false' value='1.02312'>
+      <line name='' version='2' max='5.0' min='2.0E-4' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.02312'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711293' name='MidQ' label='' min='0.08' max='2.0' bdresolution='-1' automationEnabled='false' value='0.5583486348634863'>
+      <line name='' version='2' max='2.0' min='0.08' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5583486348634863'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711295' name='LowSteepness' label='' min='2.0E-4' max='5.0' bdresolution='-1' automationEnabled='false' value='2.0E-4'>
+      <line name='' version='2' max='5.0' min='2.0E-4' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.0E-4'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711297' name='LowLevel' label='' min='2.0E-4' max='5.0' bdresolution='-1' automationEnabled='false' value='1.06552'>
+      <line name='' version='2' max='5.0' min='2.0E-4' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.06552'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711299' name='LowFreq' label='' min='2.0E-4' max='300.0' bdresolution='-1' automationEnabled='false' value='53.3688'>
+      <line name='' version='2' max='300.0' min='2.0E-4' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='53.3688'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711303' name='HighSteepness' label='' min='2.0E-4' max='5.0' bdresolution='-1' automationEnabled='false' value='1.06359'>
+      <line name='' version='2' max='5.0' min='2.0E-4' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.06359'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711305' name='HighLevel' label='' min='2.0E-4' max='5.0' bdresolution='-1' automationEnabled='false' value='1.02827'>
+      <line name='' version='2' max='5.0' min='2.0E-4' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.02827'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711307' name='HighFreq' label='' min='5000.0' max='10000.0' bdresolution='-1' automationEnabled='false' value='6269.56'>
+      <line name='' version='2' max='10000.0' min='5000.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='6269.56'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='1166711309' name='EQ1ON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

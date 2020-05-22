@@ -1,0 +1,302 @@
+<effect>
+  <name>FilterSweeper</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;FilterSweeperON&gt; == 1) then
+    ktempo	miditempo
+
+    klfo	loopseg	ktempo/60/&lt;FilterSweeper_nbBeats&gt;*&lt;FilterSweeper_subDiv&gt;/4, 0, &lt;FilterSweeper_sweep_frequency&gt;
+
+    aout1	moogvcf2	ain1, klfo * &lt;FilterSweeper_frequency&gt;, &lt;FilterSweeper_resonance&gt;
+    aout2	moogvcf2	ain2, klfo * &lt;FilterSweeper_frequency&gt;, &lt;FilterSweeper_resonance&gt;
+    aout1       *=  1.5
+    aout2       *=  1.5
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>EFFECT TO BE USED WITH COMMANDLINE -t x (where x = bpm)!!
+
+
+DESCRIPTION:
+
+Filter sweeper, with automatic sync to tempo and user drawable
+sweep graph.
+
+
+CONTROLLERS:
+
+ON/OFF              -       bypass
+Line Object         -       draw envelope for cutoff frequency
+Repeat every..      -       set number of repetitions over Score Object
+Number of notes     -       scale down the envelope over the Score Object
+maximum frequency   -       sets the top of the drawn Line Object in frequency
+resonance           -       amount of resonance
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, decembre 2018 
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008
+- initial version by Atte André Jensen (atte.dk)</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>FilterSweeperON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>Group</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>350</x>
+            <y>60</y>
+            <label>Note Value</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+            <objectName>FilterSweeper_subDiv</objectName>
+            <x>355</x>
+            <y>35</y>
+            <automationAllowed>false</automationAllowed>
+            <selectedIndex>0</selectedIndex>
+            <fontSize>12</fontSize>
+            <randomizable>true</randomizable>
+            <bsbDropdownItemList>
+              <bsbDropdownItem uniqueId='-316918366'>
+                <name>1/1</name>
+                <value>1</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918365'>
+                <name>1/2</name>
+                <value>2</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918364'>
+                <name>1/4</name>
+                <value>4</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918363'>
+                <name>1/8</name>
+                <value>8</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918362'>
+                <name>1/16</name>
+                <value>16</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918361'>
+                <name>1/1T</name>
+                <value>1.5</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918360'>
+                <name>1/2T</name>
+                <value>3</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918359'>
+                <name>1/4T</name>
+                <value>6</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918358'>
+                <name>1/8T</name>
+                <value>12</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918357'>
+                <name>1/16T</name>
+                <value>24</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918356'>
+                <name>1/1.</name>
+                <value>.6666666666666666666666666666666666666666666666666666666666666</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918355'>
+                <name>1/2.</name>
+                <value>1.33333333333333333333333333333333333333333</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918354'>
+                <name>1/4.</name>
+                <value>2.66666666666666666666666666666666666666666666666666666</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918353'>
+                <name>1/8.</name>
+                <value>5.3333333333333333333333333333333333333333333333333333333</value>
+              </bsbDropdownItem>
+              <bsbDropdownItem uniqueId='-316918352'>
+                <name>1/16.</name>
+                <value>10.666666666666666666666666666666666666666666666666666666666</value>
+              </bsbDropdownItem>
+            </bsbDropdownItemList>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>330</x>
+            <y>12</y>
+            <label>Repeat every...</label>
+            <font>
+              <name>System Bold</name>
+              <size>14.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>FilterSweeper_nbBeats</objectName>
+            <x>320</x>
+            <y>90</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>1.0</minimum>
+            <maximum>20.0</maximum>
+            <bdresolution>1</bdresolution>
+            <value>1.0</value>
+            <sliderWidth>100</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+            <objectName></objectName>
+            <x>325</x>
+            <y>120</y>
+            <label>Number of notes</label>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLineObject'>
+            <objectName>FilterSweeper_sweep</objectName>
+            <x>10</x>
+            <y>10</y>
+            <canvasWidth>300</canvasWidth>
+            <canvasHeight>100</canvasHeight>
+            <xMax>1.0</xMax>
+            <relativeXValues>true</relativeXValues>
+            <separatorType>COMMA</separatorType>
+            <leadingZero>true</leadingZero>
+            <locked>false</locked>
+            <lines>
+              <line name='frequency' version='2' max='1.0' min='0.0' bdresolution='-1' color='-14623488' rightBound='true' endPointsLinked='false'>
+                <linePoint x='0.0' y='0.0'/>
+                <linePoint x='0.16' y='1.0'/>
+                <linePoint x='1.0' y='0.0'/>
+              </line>
+            </lines>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>FilterSweeper_resonance</objectName>
+          <x>25</x>
+          <y>190</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.19</value>
+          <sliderWidth>400</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>FilterSweeper_frequency</objectName>
+          <x>25</x>
+          <y>160</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>20.0</minimum>
+          <maximum>20000.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>1624.6</value>
+          <sliderWidth>400</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>190</x>
+          <y>190</y>
+          <label>resonance</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>165</x>
+          <y>160</y>
+          <label>maximum frequency</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-316918350' name='FilterSweeper_nbBeats' label='' min='1.0' max='20.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='20.0' min='1.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918348' name='FilterSweeper_frequency' label='' min='20.0' max='20000.0' bdresolution='0.1' automationEnabled='false' value='1624.6'>
+      <line name='' version='2' max='20000.0' min='20.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1624.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-316918346' name='FilterSweeper_resonance' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.19'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.19'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104183' name='FilterSweeperON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

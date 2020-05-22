@@ -1,0 +1,260 @@
+<effect>
+  <name>VRingMod</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;VRingModON&gt; == 1) then
+    gisine	ftgenonce   1, 0, 2048, 10, 1
+    klfof	= &lt;VRingMod_LFOF&gt;
+    klfoa	= &lt;VRingMod_LFOA&gt;
+    kfreq	= &lt;VRingMod_Frequency&gt;
+    ishape	= i(&lt;VRingMod_Shape&gt;)
+
+    klfo	lfo klfoa, klfof, ishape
+    amod	oscili 1, kfreq+klfo, 1
+    aouts1	= ain1 * amod
+    aouts2	= ain2 * amod
+    aout1 = (ain1 * &lt;VRingMod_wetdry&gt;) + (aouts1 * (1 - &lt;VRingMod_wetdry&gt;))
+    aout2 = (ain2 * &lt;VRingMod_wetdry&gt;) + (aouts2 * (1 - &lt;VRingMod_wetdry&gt;))
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>
+DESCRIPTION:
+
+Ring modulates the incoming signal (acts as the carrier).
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+Frequency       -       basic/stable modulator frequency. On this frequency a LFO can be added 
+LFOF            -       frequency of LFO
+LFOA            -       amplitude (= depth) of the LFO
+LFO shape       -       5 different waveforms for LFO 
+mix             -       mix direct signal with effect
+
+---
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.10, 2016?
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by bucket_brigade
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>140</x>
+          <y>120</y>
+          <label>LFO Shape</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>180</x>
+          <y>65</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>130</x>
+          <y>90</y>
+          <label>Freq</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>VRingMod_Frequency</objectName>
+          <x>118</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>3000.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>892.0</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>VRingMod_LFOA</objectName>
+          <x>64</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>2000.0</maximum>
+          <bdresolution>1</bdresolution>
+          <value>0.0</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBDropdown' version='2'>
+          <objectName>VRingMod_Shape</objectName>
+          <x>10</x>
+          <y>115</y>
+          <automationAllowed>true</automationAllowed>
+          <selectedIndex>0</selectedIndex>
+          <fontSize>12</fontSize>
+          <randomizable>true</randomizable>
+          <bsbDropdownItemList>
+            <bsbDropdownItem uniqueId='-413794114'>
+              <name>Sine</name>
+              <value>0</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-413794113'>
+              <name>Triangle</name>
+              <value>1</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-413794112'>
+              <name>Square (bipolar)</name>
+              <value>2</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-413794111'>
+              <name>Square (unipolar)</name>
+              <value>3</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-413794110'>
+              <name>SawTooth</name>
+              <value>4</value>
+            </bsbDropdownItem>
+            <bsbDropdownItem uniqueId='-413794109'>
+              <name>SawTooth (down)</name>
+              <value>5</value>
+            </bsbDropdownItem>
+          </bsbDropdownItemList>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>23</x>
+          <y>90</y>
+          <label>LFOF</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>VRingMod_wetdry</objectName>
+          <x>175</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.5</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>VRingMod_LFOF</objectName>
+          <x>10</x>
+          <y>10</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>5.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.75</value>
+          <sliderHeight>50</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>76</x>
+          <y>90</y>
+          <label>LFOA</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>VRingModON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='172823205' name='VRingMod_LFOF' label='' min='0.0' max='5.0' bdresolution='0.01' automationEnabled='false' value='0.75'>
+      <line name='' version='2' max='5.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.75'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='172823207' name='VRingMod_Shape' label='' min='0.0' max='5.0' bdresolution='1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='5.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='172823209' name='VRingMod_Frequency' label='' min='0.0' max='3000.0' bdresolution='1' automationEnabled='false' value='892.0'>
+      <line name='' version='2' max='3000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='892.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='172823211' name='VRingMod_LFOA' label='' min='0.0' max='2000.0' bdresolution='1' automationEnabled='false' value='0.0'>
+      <line name='' version='2' max='2000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-413794107' name='VRingMod_wetdry' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.5'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104151' name='VRingModON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

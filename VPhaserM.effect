@@ -1,0 +1,353 @@
+<effect>
+  <name>VPhaserM</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;VPhaserON&gt; == 1) then
+    klfo1	lfo 1, &lt;VPhaser_FM&gt;
+    klfo1	*= &lt;VPhaser_FM Depth&gt;
+    klfo2	lfo 1, &lt;VPhaser_Seperation Modulate&gt;
+    klfo2	*= &lt;VPhaser_Seperation Modulation Depth&gt;
+    aout1	phaser2 ain1, &lt;VPhaser_Frequency&gt; + klfo1, &lt;VPhaser_Q&gt;, &lt;VPhaser_notches&gt;, 1, &lt;VPhaser_Separation&gt; + klfo2, &lt;VPhaser_Feedback&gt;
+    aout2	phaser2 ain2, &lt;VPhaser_Frequency&gt; + klfo1, &lt;VPhaser_Q&gt;, &lt;VPhaser_notches&gt;, 1, &lt;VPhaser_Separation&gt; + klfo2, &lt;VPhaser_Feedback&gt;
+    aout1       ntrpol  aout1, ain1, &lt;VPhaser_mix&gt;
+    aout2       ntrpol  aout2, ain2, &lt;VPhaser_mix&gt;
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif
+</code>
+  <comments>
+DESCRIPTION:
+
+FLFO controls frequency of the phaser. SLFO controls separation of the peaks.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+frequency       -       frequency (in Hz) of the filter(s)
+LFO freq        -       speed of LFO (sinewave)
+LFO Depth       -       amount of LFO amplitude
+Notch           -       the number of allpass stages in series
+Q Notch         -       Q of each notch. Higher Q values result in narrow notches
+Feedback        -       amount of feedback
+Separation      -       scaling factor used to determine the frequencies of the additional notches in the output spectrum
+Modulate        -       LFO speed of LFO for Separation
+Depth           -       gain of LFO for Separation
+mix             -       mix direct signal with effect
+
+--
+
+version 1.11, May 2020
+- added comments on controllers
+
+version 1.1, February 2019
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by bucket_brigade</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='true'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>VPhaserON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>10</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>frequency</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x1a4d4dff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_FM Depth</objectName>
+            <x>70</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1000.0</maximum>
+            <value>280.0</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Depth</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_FM</objectName>
+            <x>10</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.19</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>LFO freq</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_Q</objectName>
+            <x>190</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.42</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Q notch</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_notches</objectName>
+            <x>140</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>1.0</minimum>
+            <maximum>200.0</maximum>
+            <value>30.849999999999998</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Notch</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+            <objectName>VPhaser_Frequency</objectName>
+            <x>10</x>
+            <y>0</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>8000.0</maximum>
+            <bdresolution>1</bdresolution>
+            <value>576.0</value>
+            <sliderWidth>250</sliderWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_Feedback</objectName>
+            <x>240</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.49</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Feedback</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>535</x>
+          <y>15</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBVSlider' version='2'>
+          <objectName>VPhaser_mix</objectName>
+          <x>530</x>
+          <y>35</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.1</bdresolution>
+          <value>0.6</value>
+          <sliderHeight>90</sliderHeight>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>330</x>
+          <y>10</y>
+          <groupName>Separation</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x1a4d4dff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>true</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_Seperation Modulate</objectName>
+            <x>80</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>10.0</maximum>
+            <value>0.4</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Modulate</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_Seperation Modulation Depth</objectName>
+            <x>150</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>4.0</maximum>
+            <value>2.52</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Depth</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>VPhaser_Separation</objectName>
+            <x>6</x>
+            <y>30</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>1.0</maximum>
+            <value>0.09</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>Separation</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-134332852' name='VPhaser_Frequency' label='' min='0.0' max='8000.0' bdresolution='1' automationEnabled='false' value='576.0'>
+      <line name='' version='2' max='8000.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='576.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799094' name='VPhaser_FM Depth' label='' min='0.0' max='1000.0' bdresolution='-1' automationEnabled='false' value='280.0'>
+      <line name='' version='2' max='1000.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='280.0'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799092' name='VPhaser_FM' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.19'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.19'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799084' name='VPhaser_notches' label='' min='1.0' max='200.0' bdresolution='-1' automationEnabled='false' value='30.849999999999998'>
+      <line name='' version='2' max='200.0' min='1.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='30.849999999999998'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799082' name='VPhaser_Feedback' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.49'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.49'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799080' name='VPhaser_Q' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.42'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.42'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799078' name='VPhaser_Seperation Modulate' label='' min='0.0' max='10.0' bdresolution='-1' automationEnabled='false' value='0.4'>
+      <line name='' version='2' max='10.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.4'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799076' name='VPhaser_Separation' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.09'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.09'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1453799074' name='VPhaser_Seperation Modulation Depth' label='' min='0.0' max='4.0' bdresolution='-1' automationEnabled='false' value='2.52'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='2.52'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-208538264' name='VPhaser_mix' label='' min='0.0' max='1.0' bdresolution='0.1' automationEnabled='false' value='0.6'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.6'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104193' name='VPhaserON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>

@@ -1,0 +1,272 @@
+<effect>
+  <name>Tempo-Sync Stereo Delay</name>
+  <enabled>true</enabled>
+  <numIns>2</numIns>
+  <numOuts>2</numOuts>
+  <code>if (&lt;TempoDelayON&gt; == 1) then
+    ibpm = i(&lt;TempoDelay_BPM&gt;)
+    inl = i(&lt;TempoDelay_note length&gt;)
+
+    kfb = &lt;TempoDelay_feedback&gt;
+    idel = ( 1/(ibpm/60) * inl )
+
+    aleft delayr idel
+    aright delayr idel
+
+    if ( &lt;TempoDelay_pingpong&gt; == 0 ) then
+	ado1 = aleft + ain1
+	ado2 = aright + ain2
+    else
+	ado1 = aright + ( .5 * (ain1 + ain2) )
+	ado2 = aleft
+    endif
+
+    delayw ado1 * kfb
+    delayw ado2 * kfb
+
+    if ( &lt;TempoDelay_swap outputs&gt; == 1 ) then
+	aout1 = aright
+	aout2 = aleft
+    else
+	aout1 = aleft
+	aout2 = aright
+    endif
+
+    aout1 = ( aout1 * ( 1 - &lt;TempoDelay_balance&gt; )  ) * 2
+    aout2 = ( aout2 * &lt;TempoDelay_balance&gt; ) * 2
+
+    aout1 = (ain1 * &lt;TempoDelay_wetdry&gt;) + (aout1 * (1 - &lt;TempoDelay_wetdry&gt;))
+    aout2 = (ain2 * &lt;TempoDelay_wetdry&gt;) + (aout2 * (1 - &lt;TempoDelay_wetdry&gt;))
+
+else
+    aout1   =   ain1
+    aout2   =   ain2
+endif</code>
+  <comments>DESCRIPTION:
+
+Simple tempo-synced stereo delay (&quot;echo&quot;) effect.  Implements ping-pong mode as well.
+
+
+CONTROLLERS:
+
+ON/OFF          -       bypass
+BPM             -       set Beats Per Minute
+note length     -       just that
+feedback        -       amount of feedback
+balance         -       balance in Left or Right panning
+Ping-Pong       -       output jumps from one channel to the other, and back
+Swap Outputs    -       swap left/right outputs
+mix             -       mix direct signal with effect
+
+---
+
+version 1.11, 2020
+- added comments on controllers
+
+version 1.1, 2016
+- new GUI and small code adaptations by Menno Knevel
+
+version 1.0, 2008?
+- initial version by filterchild
+
+</comments>
+  <opcodeList/>
+  <graphicInterface editEnabled='false'>
+    <gridSettings>
+      <width>5</width>
+      <height>5</height>
+      <gridStyle>LINE</gridStyle>
+      <snapGridEnabled>true</snapGridEnabled>
+    </gridSettings>
+    <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+      <objectName></objectName>
+      <x>0</x>
+      <y>0</y>
+      <groupName>Group</groupName>
+      <backgroundColor>0x00000033</backgroundColor>
+      <borderColor>0x000000ff</borderColor>
+      <labelTextColor>0xffffffff</labelTextColor>
+      <titleEnabled>true</titleEnabled>
+      <width>20</width>
+      <height>20</height>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+        <objectName></objectName>
+        <x>5</x>
+        <y>10</y>
+        <groupName>Group</groupName>
+        <backgroundColor>0x4d8080ff</backgroundColor>
+        <borderColor>0x000000ff</borderColor>
+        <labelTextColor>0xffffffff</labelTextColor>
+        <titleEnabled>false</titleEnabled>
+        <width>20</width>
+        <height>20</height>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>TempoDelay_pingpong</objectName>
+          <x>280</x>
+          <y>20</y>
+          <automationAllowed>false</automationAllowed>
+          <label>Ping-Pong</label>
+          <selected>false</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBHSlider' version='2'>
+          <objectName>TempoDelay_wetdry</objectName>
+          <x>280</x>
+          <y>70</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <bdresolution>0.01</bdresolution>
+          <value>0.46</value>
+          <sliderWidth>100</sliderWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>false</valueDisplayEnabled>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+          <objectName>TempoDelay_swap outputs</objectName>
+          <x>280</x>
+          <y>42</y>
+          <automationAllowed>false</automationAllowed>
+          <label>Swap Outputs</label>
+          <selected>false</selected>
+          <randomizable>true</randomizable>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>TempoDelay_feedback</objectName>
+          <x>155</x>
+          <y>20</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.25</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>feedback</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBGroup'>
+          <objectName></objectName>
+          <x>10</x>
+          <y>10</y>
+          <groupName>Group</groupName>
+          <backgroundColor>0x4d8080ff</backgroundColor>
+          <borderColor>0x000000ff</borderColor>
+          <labelTextColor>0xffffffff</labelTextColor>
+          <titleEnabled>false</titleEnabled>
+          <width>20</width>
+          <height>20</height>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>TempoDelay_note length</objectName>
+            <x>55</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>0.0</minimum>
+            <maximum>4.0</maximum>
+            <value>0.75</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>note length</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+          <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+            <objectName>TempoDelay_BPM</objectName>
+            <x>10</x>
+            <y>10</y>
+            <automationAllowed>true</automationAllowed>
+            <minimum>1.0</minimum>
+            <maximum>1000.0</maximum>
+            <value>189.94</value>
+            <knobWidth>40</knobWidth>
+            <randomizable>true</randomizable>
+            <valueDisplayEnabled>true</valueDisplayEnabled>
+            <label>BPM</label>
+            <labelEnabled>true</labelEnabled>
+            <font>
+              <name>System Regular</name>
+              <size>12.0</size>
+            </font>
+          </bsbObject>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBKnob' version='2'>
+          <objectName>TempoDelay_balance</objectName>
+          <x>220</x>
+          <y>20</y>
+          <automationAllowed>true</automationAllowed>
+          <minimum>0.0</minimum>
+          <maximum>1.0</maximum>
+          <value>0.5</value>
+          <knobWidth>40</knobWidth>
+          <randomizable>true</randomizable>
+          <valueDisplayEnabled>true</valueDisplayEnabled>
+          <label>balance</label>
+          <labelEnabled>true</labelEnabled>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+        <bsbObject type='blue.orchestra.blueSynthBuilder.BSBLabel' version='2'>
+          <objectName></objectName>
+          <x>320</x>
+          <y>65</y>
+          <label>mix</label>
+          <font>
+            <name>System Regular</name>
+            <size>12.0</size>
+          </font>
+        </bsbObject>
+      </bsbObject>
+      <bsbObject type='blue.orchestra.blueSynthBuilder.BSBCheckBox'>
+        <objectName>TempoDelayON</objectName>
+        <x>0</x>
+        <y>0</y>
+        <automationAllowed>true</automationAllowed>
+        <label/>
+        <selected>true</selected>
+        <randomizable>true</randomizable>
+      </bsbObject>
+    </bsbObject>
+  </graphicInterface>
+  <parameterList>
+    <parameter uniqueId='-1290835447' name='TempoDelay_BPM' label='' min='1.0' max='1000.0' bdresolution='-1' automationEnabled='false' value='189.94'>
+      <line name='' version='2' max='1000.0' min='1.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='189.94'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-1290835445' name='TempoDelay_balance' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.5'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.5'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-825415849' name='TempoDelay_feedback' label='' min='0.0' max='1.0' bdresolution='-1' automationEnabled='false' value='0.25'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.25'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-825415821' name='TempoDelay_note length' label='' min='0.0' max='4.0' bdresolution='-1' automationEnabled='false' value='0.75'>
+      <line name='' version='2' max='4.0' min='0.0' bdresolution='-1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.75'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-825415787' name='TempoDelay_wetdry' label='' min='0.0' max='1.0' bdresolution='0.01' automationEnabled='false' value='0.46'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='0.01' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='0.46'/>
+      </line>
+    </parameter>
+    <parameter uniqueId='-104104163' name='TempoDelayON' label='' min='0.0' max='1.0' bdresolution='1' automationEnabled='false' value='1.0'>
+      <line name='' version='2' max='1.0' min='0.0' bdresolution='1' color='-8355712' rightBound='false' endPointsLinked='false'>
+        <linePoint x='0.0' y='1.0'/>
+      </line>
+    </parameter>
+  </parameterList>
+</effect>
